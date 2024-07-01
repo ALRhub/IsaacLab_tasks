@@ -14,11 +14,11 @@ from omni.isaac.lab.sensors import FrameTransformer
 from omni.isaac.lab.utils.math import combine_frame_transforms
 
 if TYPE_CHECKING:
-    from omni.isaac.lab.envs import RLTaskEnv
+    from omni.isaac.lab.envs import ManagerBasedRLEnv
 
 
 def object_ee_distance(
-    env: RLTaskEnv,
+    env: ManagerBasedRLEnv,
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ) -> torch.Tensor:
@@ -37,7 +37,7 @@ def object_ee_distance(
 
 
 def object_goal_position_distance(
-    env: RLTaskEnv,
+    env: ManagerBasedRLEnv,
     command_name: str,
     end_ep: bool,
     end_ep_weight: float = 0.0,
@@ -63,7 +63,7 @@ def object_goal_position_distance(
 
 
 def object_goal_orientation_distance(
-    env: RLTaskEnv,
+    env: ManagerBasedRLEnv,
     command_name: str,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
@@ -80,7 +80,7 @@ def object_goal_orientation_distance(
 
 
 # TODO somehow asset_cfg.joint_ids is None so has to be replaced with :
-def joint_pos_limits_bp(env: RLTaskEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+def joint_pos_limits_bp(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """Penalize joint positions if they cross the soft limits.
 
     This is computed as a sum of the absolute value of the difference between the joint position and the soft limits.
@@ -94,7 +94,7 @@ def joint_pos_limits_bp(env: RLTaskEnv, asset_cfg: SceneEntityCfg = SceneEntityC
 
 
 def end_ep_vel(
-    env: RLTaskEnv,
+    env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
     #  retrieving velocity
@@ -111,7 +111,7 @@ def end_ep_vel(
 
 
 def joint_vel_limits_bp(
-    env: RLTaskEnv,
+    env: ManagerBasedRLEnv,
     soft_ratio: float,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -134,7 +134,7 @@ def joint_vel_limits_bp(
 
 
 def rod_inclined_angle(
-    env: RLTaskEnv,
+    env: ManagerBasedRLEnv,
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ) -> torch.Tensor:
     desired_rod_quat = torch.tensor([0.0, 1.0, 0.0, 0.0], device=env.device).repeat(env.num_envs, 1)

@@ -18,7 +18,7 @@ from omni.isaac.lab.markers.config import FRAME_MARKER_CFG
 from omni.isaac.lab.utils.math import combine_frame_transforms, compute_pose_error, quat_from_euler_xyz
 
 if TYPE_CHECKING:
-    from omni.isaac.lab.envs import BaseEnv
+    from omni.isaac.lab.envs import ManagerBasedEnv
 
     from .pose_command_min_dist_cfg import UniformPoseWithMinDistCommandCfg
 
@@ -45,7 +45,7 @@ class UniformPoseWithMinDistCommand(UniformPoseCommand):
     cfg: UniformPoseWithMinDistCommandCfg
     """Configuration for the command generator."""
 
-    def __init__(self, cfg: UniformPoseWithMinDistCommandCfg, env: BaseEnv):
+    def __init__(self, cfg: UniformPoseWithMinDistCommandCfg, env: ManagerBasedEnv):
         """Initialize the command generator class.
 
         Args:

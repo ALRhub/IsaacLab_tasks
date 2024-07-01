@@ -13,11 +13,11 @@ from omni.isaac.lab.managers import SceneEntityCfg
 from .rewards import object_goal_orientation_distance, object_goal_position_distance
 
 if TYPE_CHECKING:
-    from omni.isaac.lab.envs import RLTaskEnv
+    from omni.isaac.lab.envs import ManagerBasedRLEnv
 
 
 def is_success(
-    env: RLTaskEnv,
+    env: ManagerBasedRLEnv,
     command_name: str,
     limit_pose_dist: float = 0.05,
     limit_or_dist: float = 0.5,
