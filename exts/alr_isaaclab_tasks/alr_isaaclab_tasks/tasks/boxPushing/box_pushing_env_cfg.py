@@ -104,7 +104,8 @@ class ActionsCfg:
     """Action specifications for the MDP."""
 
     # will be set by agent env cfg
-    body_joint_pos: mdp.JointPositionActionCfg = MISSING
+    # body_joint_pos: mdp.JointPositionActionCfg = MISSING
+    body_joint_effort: mdp.JointEffortActionCfg = MISSING
 
 
 @configclass
