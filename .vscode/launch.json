@@ -23,5 +23,14 @@
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
         },
+        {
+            "name": "Python: Train (Fancy gym HP)",
+            "type": "debugpy",
+            "request": "launch",
+            "args" : ["--task", "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0", "--num_envs", "160", "--headless"],
+            "program": "${workspaceFolder}/scripts/rsl_rl/train.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+        },
     ]
 }
