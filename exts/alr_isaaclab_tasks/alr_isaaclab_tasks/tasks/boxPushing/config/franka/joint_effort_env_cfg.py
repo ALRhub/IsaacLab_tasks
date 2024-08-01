@@ -51,7 +51,7 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
         self.scene.object = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Object",
             init_state=RigidObjectCfg.InitialStateCfg(
-                pos=[0.41, 0.0, 0.055],
+                pos=[0.41, 0.0, 0.025],
                 rot=[1, 0, 0, 0],
             ),
             spawn=UsdFileCfg(

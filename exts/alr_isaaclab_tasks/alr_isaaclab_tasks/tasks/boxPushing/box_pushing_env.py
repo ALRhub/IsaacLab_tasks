@@ -11,6 +11,9 @@ import gymnasium as gym
 from omni.isaac.lab.envs.manager_based_rl_env import ManagerBasedRLEnv
 from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import BoxPushingEnvCfg
 
+import os
+import pytorch_kinematics as pk
+
 
 class BoxPushingEnv(ManagerBasedRLEnv):
 
@@ -30,3 +33,13 @@ class BoxPushingEnv(ManagerBasedRLEnv):
 
         # batch the spaces for vectorized environments
         self.action_space = gym.vector.utils.batch_space(self.single_action_space, self.num_envs)
+
+        # initializing kinematic chain from urdf for IK
+        script_dir = os.path.dirname(__file__)  # <-- absolute dir the script is in
+        rel_path = "assets/franka_ik.urdf"
+        urdf = os.path.abspath(os.path.join(script_dir, rel_path))
+
+        with open(urdf, "rb") as urdf_file:  # Read the file as bytes
+            urdf_data = urdf_file.read()
+        self.chain = pk.build_serial_chain_from_urdf(urdf_data, "panda_hand")
+        self.chain = self.chain.to(device=self.device)
