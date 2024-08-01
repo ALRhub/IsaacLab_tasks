@@ -31,6 +31,7 @@
             "program": "${workspaceFolder}/scripts/rsl_rl/train.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false
         },
     ]
 }
