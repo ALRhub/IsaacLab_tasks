@@ -69,7 +69,11 @@ def main():
             # apply actions
             env.step(actions)
 
-            env_fg.step(actions_fg)
+            _, _, terminated, truncated, _ = env_fg.step(actions_fg)
+            env_fg.render()
+
+            if terminated or truncated:
+                env_fg.reset()
 
     # close the simulator
     env.close()

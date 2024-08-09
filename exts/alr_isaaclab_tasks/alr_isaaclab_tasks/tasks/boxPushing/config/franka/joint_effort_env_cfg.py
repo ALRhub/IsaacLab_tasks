@@ -24,7 +24,7 @@ from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import (
 # Pre-defined configs
 ##
 from omni.isaac.lab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import FRANKA_PANDA_CFG  # isort: skip
+from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import FRANKA_PANDA_ONLY_TORQUE  # isort: skip
 
 
 @configclass
@@ -34,7 +34,7 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
         super().__post_init__()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = FRANKA_PANDA_ONLY_TORQUE.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (franka)
         # self.actions.body_joint_pos = mdp.JointPositionActionCfg(
