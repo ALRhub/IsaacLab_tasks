@@ -139,7 +139,7 @@ class EventCfg:
     reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
 
     reset_object_position = EventTerm(
-        func=mdp.reset_box_root_state_uniform_with_robot_IK,
+        func=mdp.reset_box_root_state_uniform_with_precomputed_robot_IK,
         mode="reset",
         params={
             "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
@@ -233,6 +233,8 @@ class BoxPushingEnvCfg(ManagerBasedRLEnvCfg):
     rewards = MISSING
     terminations: TerminationsCfg = TerminationsCfg()
     events: EventCfg = EventCfg()
+
+    ik_grid_precision = 100
 
     def __post_init__(self):
         """Post initialization."""

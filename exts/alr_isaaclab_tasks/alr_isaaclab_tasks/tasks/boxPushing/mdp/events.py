@@ -15,11 +15,12 @@ from omni.isaac.lab.assets import Articulation, RigidObject
 from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.utils.math import quat_from_euler_xyz, sample_uniform
 
+
 if TYPE_CHECKING:
     from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env import BoxPushingEnv
 
 
-def reset_box_root_state_uniform_with_robot_IK(
+def sample_box_poses(
     env: BoxPushingEnv,
     env_ids: torch.Tensor,
     pose_range: dict[str, tuple[float, float]],
@@ -54,18 +55,27 @@ def reset_box_root_state_uniform_with_robot_IK(
     # set into the physics simulation
     box_poses = torch.cat([positions, orientations], dim=-1)
     asset.write_root_pose_to_sim(box_poses, env_ids=env_ids)
+    return box_poses
+
+
+def reset_box_root_state_uniform_with_robot_IK(
+    env: BoxPushingEnv,
+    env_ids: torch.Tensor,
+    pose_range: dict[str, tuple[float, float]],
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+):
+
+    box_poses = sample_box_poses(env, env_ids, pose_range, asset_cfg)
 
     ######
     # IK #
     ######
 
-    # TODO set device to robot.device?
-
     robot: Articulation = env.scene["robot"]
 
     # processing target box poses
     target_poses = box_poses + torch.tensor([0.0, 0.0, 0.27, 0.0, 0.0, 0.0, 0.0], device=robot.device)
-    target_poses[:, :3] -= robot.data.root_pos_w
+    target_poses[:, :3] -= robot.data.root_pos_w[env_ids]
     target_poses[:, 3:7] = torch.tensor([0.0, 1.0, 0.0, 0.0], device=robot.device)
     target_transforms = Transform3d(pos=target_poses[:, :3], rot=target_poses[:, 3:7], device=robot.device)
 
@@ -79,6 +89,38 @@ def reset_box_root_state_uniform_with_robot_IK(
     )
     sol = ik.solve(target_transforms)
     joint_pos_des = sol.solutions[:, 0]
+
+    # setting desired joint angles in simulation
+    robot_entity_cfg = SceneEntityCfg("robot", joint_names=["panda_joint.*"], body_names=["panda_hand"])
+    robot_entity_cfg.resolve(env.scene)
+
+    robot.write_joint_state_to_sim(
+        joint_pos_des,
+        torch.zeros(joint_pos_des.shape, device=robot.device),
+        joint_ids=robot_entity_cfg.joint_ids,
+        env_ids=env_ids,
+    )
+
+
+def reset_box_root_state_uniform_with_precomputed_robot_IK(
+    env: BoxPushingEnv,
+    env_ids: torch.Tensor,
+    pose_range: dict[str, tuple[float, float]],
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+):
+
+    box_poses = sample_box_poses(env, env_ids, pose_range, asset_cfg)
+
+    robot: Articulation = env.scene["robot"]
+    box_poses[:, :3] -= robot.data.root_pos_w[env_ids]
+
+    ######
+    # IK #
+    ######
+
+    # getting IK
+
+    joint_pos_des = env.get_ik_solutions(box_poses)
 
     # setting desired joint angles in simulation
     robot_entity_cfg = SceneEntityCfg("robot", joint_names=["panda_joint.*"], body_names=["panda_hand"])
