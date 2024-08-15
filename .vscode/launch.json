@@ -9,7 +9,12 @@
             "name": "Python: Zero Agent",
             "type": "debugpy",
             "request": "launch",
-            "args" : ["--task", "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0", "--num_envs", "4"],
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "4"
+            ],
             "program": "${workspaceFolder}/scripts/zero_agent.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
@@ -18,25 +23,58 @@
             "name": "Python: Zero Agent Comparison",
             "type": "debugpy",
             "request": "launch",
-            "args" : ["--task", "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0", "--num_envs", "4"],
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "4"
+            ],
             "program": "${workspaceFolder}/scripts/zero_agent_comparison.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false,
         },
         {
             "name": "Python: Random Agent",
             "type": "debugpy",
             "request": "launch",
-            "args" : ["--task", "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0", "--num_envs", "4"],
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "4"
+            ],
             "program": "${workspaceFolder}/scripts/random_agent.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false,
+        },
+        {
+            "name": "Python: Random Agent Comparison",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "4"
+            ],
+            "program": "${workspaceFolder}/scripts/random_agent_comparison.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false,
         },
         {
             "name": "Python: Train (Fancy gym HP)",
             "type": "debugpy",
             "request": "launch",
-            "args" : ["--task", "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0", "--num_envs", "160", "--headless"],
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "160",
+                "--headless"
+            ],
             "program": "${workspaceFolder}/scripts/rsl_rl/train.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
