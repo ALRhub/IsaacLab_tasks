@@ -41,6 +41,8 @@ class BoxPushingEnv(ManagerBasedRLEnv):
 
         print("Precomputing IK Solutions for the box sampling space")
 
+        # TODO set cli to choose IK method
+
         # # computing the ik vector
         # init_box_pose = cfg.scene.object.init_state.pos
         # offset_range = cfg.events.reset_object_position.params["pose_range"]

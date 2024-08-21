@@ -117,8 +117,6 @@ class ObservationsCfg:
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
 
-        # TODO compare, remove
-        joint_pos_abs = ObsTerm(func=mdp.joint_pos_abs)
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_pose = ObsTerm(func=mdp.object_pose_in_robot_root_frame)
@@ -139,16 +137,14 @@ class EventCfg:
 
     reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
 
-    # TODO compare, activate random box pose
-
-    # reset_box_pose = EventTerm(
-    #     func=mdp.sample_box_poses,
-    #     mode="reset",
-    #     params={
-    #         "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
-    #         "asset_cfg": SceneEntityCfg("object", body_names="Object"),
-    #     },
-    # )
+    reset_box_pose = EventTerm(
+        func=mdp.sample_box_poses,
+        mode="reset",
+        params={
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
+            "asset_cfg": SceneEntityCfg("object", body_names="Object"),
+        },
+    )
 
     reset_object_position = EventTerm(
         func=mdp.reset_robot_cfg_with_IK,
