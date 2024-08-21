@@ -24,7 +24,7 @@ from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import (
 # Pre-defined configs
 ##
 from omni.isaac.lab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import FRANKA_PANDA_ONLY_TORQUE  # isort: skip
+from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import FRANKA_PANDA_ONLY_TORQUE as FRANKA_CONFIG  # isort: skip
 
 
 @configclass
@@ -34,14 +34,9 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
         super().__post_init__()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_PANDA_ONLY_TORQUE.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = FRANKA_CONFIG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (franka)
-        # self.actions.body_joint_pos = mdp.JointPositionActionCfg(
-        #     asset_name="robot",
-        #     joint_names=["panda_joint.*"],
-        #     use_default_offset=True,
-        # )
         self.actions.body_joint_effort = mdp.JointEffortActionCfg(
             asset_name="robot", joint_names=["panda_joint.*"], scale=10.0, debug_vis=True
         )
@@ -51,14 +46,15 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
         self.scene.object = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Object",
             init_state=RigidObjectCfg.InitialStateCfg(
-                pos=[0.41, 0.0, 0.025],
+                # TODO compare, set to 0.0
+                pos=[0.41, 0.3, 0.025],
                 rot=[1, 0, 0, 0],
             ),
             spawn=UsdFileCfg(
                 usd_path=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../assets/box.usda"),
                 scale=(0.001, 0.001, 0.001),
                 rigid_props=RigidBodyPropertiesCfg(
-                    solver_position_iteration_count=16,
+                    solver_position_iteration_count=8,
                     solver_velocity_iteration_count=1,
                     max_angular_velocity=1000.0,
                     max_linear_velocity=1000.0,

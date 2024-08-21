@@ -55,26 +55,25 @@ def sample_box_poses(
     # set into the physics simulation
     box_poses = torch.cat([positions, orientations], dim=-1)
     asset.write_root_pose_to_sim(box_poses, env_ids=env_ids)
-    return box_poses
 
 
-def reset_box_root_state_uniform_with_robot_IK(
+def reset_robot_cfg_with_IK(
     env: BoxPushingEnv,
     env_ids: torch.Tensor,
-    pose_range: dict[str, tuple[float, float]],
-    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ):
-
-    box_poses = sample_box_poses(env, env_ids, pose_range, asset_cfg)
 
     ######
     # IK #
     ######
 
     robot: Articulation = env.scene["robot"]
+    boxes: Articulation = env.scene["object"]
 
     # processing target box poses
-    target_poses = box_poses + torch.tensor([0.0, 0.0, 0.27, 0.0, 0.0, 0.0, 0.0], device=robot.device)
+    PUSH_ROD_OFFSET = 0.27
+    target_poses = boxes.data.body_state_w[env_ids, 0, :7] + torch.tensor(
+        [0.0, 0.0, PUSH_ROD_OFFSET, 0.0, 0.0, 0.0, 0.0], device=robot.device
+    )
     target_poses[:, :3] -= robot.data.root_pos_w[env_ids]
     target_poses[:, 3:7] = torch.tensor([0.0, 1.0, 0.0, 0.0], device=robot.device)
     target_transforms = Transform3d(pos=target_poses[:, :3], rot=target_poses[:, 3:7], device=robot.device)
@@ -93,6 +92,12 @@ def reset_box_root_state_uniform_with_robot_IK(
     # setting desired joint angles in simulation
     robot_entity_cfg = SceneEntityCfg("robot", joint_names=["panda_joint.*"], body_names=["panda_hand"])
     robot_entity_cfg.resolve(env.scene)
+
+    # Setting data into buffers (not done when sending to sim)
+    robot.set_joint_position_target(joint_pos_des, joint_ids=robot_entity_cfg.joint_ids, env_ids=env_ids)
+    robot.set_joint_velocity_target(
+        torch.zeros(joint_pos_des.shape, device=robot.device), joint_ids=robot_entity_cfg.joint_ids, env_ids=env_ids
+    )
 
     robot.write_joint_state_to_sim(
         joint_pos_des,
@@ -125,6 +130,12 @@ def reset_box_root_state_uniform_with_precomputed_robot_IK(
     # setting desired joint angles in simulation
     robot_entity_cfg = SceneEntityCfg("robot", joint_names=["panda_joint.*"], body_names=["panda_hand"])
     robot_entity_cfg.resolve(env.scene)
+
+    # Setting data into buffers (not done when sending to sim)
+    robot.set_joint_position_target(joint_pos_des, joint_ids=robot_entity_cfg.joint_ids, env_ids=env_ids)
+    robot.set_joint_velocity_target(
+        torch.zeros(joint_pos_des.shape, device=robot.device), joint_ids=robot_entity_cfg.joint_ids, env_ids=env_ids
+    )
 
     robot.write_joint_state_to_sim(
         joint_pos_des,

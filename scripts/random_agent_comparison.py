@@ -67,8 +67,12 @@ def main():
         # run everything in inference mode
         with torch.inference_mode():
             # compute zero actions
-            actions = torch.zeros(env.action_space.shape, device=env.unwrapped.device)
-            actions_fg = np.zeros_like(env_fg.action_space.sample())
+            actions_fg = env_fg.action_space.sample()
+            actions = torch.tensor(actions_fg, device=env.unwrapped.device)
+            actions = actions.repeat(args_cli.num_envs, 1)
+            # print("=====")
+            # print("IsaacLab: ", actions[0])
+            # print("Fancy gym: ", actions_fg)
 
             # apply actions
             obs, _, _, _, _ = env.step(actions)
@@ -79,11 +83,11 @@ def main():
             env_fg.render()
 
             if terminated or truncated:
+                env_fg.reset()
+
                 plot_joint_trajectories(joint_positons, joint_positons_fg)
                 joint_positons = []
                 joint_positons_fg = []
-
-                env_fg.reset()
 
     # close the simulator
     env.close()

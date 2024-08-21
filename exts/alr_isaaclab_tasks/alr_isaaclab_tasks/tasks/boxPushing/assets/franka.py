@@ -28,7 +28,7 @@ FRANKA_PANDA_CFG = ArticulationCfg(
         usd_path=os.path.join(os.path.dirname(os.path.realpath(__file__)), "franka.usda"),
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
-            disable_gravity=False,
+            disable_gravity=True,
             max_depenetration_velocity=5.0,
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
@@ -37,15 +37,26 @@ FRANKA_PANDA_CFG = ArticulationCfg(
         # collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
+        # joint_pos={
+        #     "panda_joint1": 0.0,
+        #     "panda_joint2": -0.369,
+        #     "panda_joint3": 0.0,
+        #     "panda_joint4": -2.345,
+        #     "panda_joint5": 0.0,
+        #     "panda_joint6": 2.39,
+        #     "panda_joint7": 0.74,
+        #     "panda_finger_joint.*": 0.0,
+        # },
+        # TODO compare deactivate
         joint_pos={
-            "panda_joint1": 0.0,
-            "panda_joint2": -0.369,
-            "panda_joint3": 0.0,
-            "panda_joint4": -2.345,
-            "panda_joint5": 0.0,
-            "panda_joint6": 2.39,
-            "panda_joint7": 0.74,
-            "panda_finger_joint.*": 0.04,
+            "panda_joint1": 0.38706806,
+            "panda_joint2": 0.17620842,
+            "panda_joint3": 0.24989142,
+            "panda_joint4": -2.39914377,
+            "panda_joint5": -0.07986905,
+            "panda_joint6": 2.56857367,
+            "panda_joint7": 1.47951693,
+            "panda_finger_joint.*": 0.00,
         },
     ),
     actuators={
@@ -88,6 +99,8 @@ This configuration is useful for task-space control using differential IK.
 """
 
 FRANKA_PANDA_ONLY_TORQUE = FRANKA_PANDA_CFG.copy()
+# TODO compare, set to True
+FRANKA_PANDA_ONLY_TORQUE.spawn.rigid_props.disable_gravity = False
 FRANKA_PANDA_ONLY_TORQUE.actuators["panda_shoulder"].stiffness = 0
 FRANKA_PANDA_ONLY_TORQUE.actuators["panda_shoulder"].damping = 0
 FRANKA_PANDA_ONLY_TORQUE.actuators["panda_forearm"].stiffness = 0

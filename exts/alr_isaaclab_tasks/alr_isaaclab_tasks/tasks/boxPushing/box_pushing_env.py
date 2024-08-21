@@ -39,39 +39,41 @@ class BoxPushingEnv(ManagerBasedRLEnv):
         # batch the spaces for vectorized environments
         self.action_space = gym.vector.utils.batch_space(self.single_action_space, self.num_envs)
 
-        # computing the ik vector
-        init_box_pose = cfg.scene.object.init_state.pos
-        offset_range = cfg.events.reset_object_position.params["pose_range"]
-        self.x_sample_range = [init_box_pose[0] + offset_range["x"][0], init_box_pose[0] + offset_range["x"][1]]
-        self.y_sample_range = [init_box_pose[1] + offset_range["y"][0], init_box_pose[1] + offset_range["y"][1]]
-        self.z_sample_range = [init_box_pose[2] + offset_range["z"][0], init_box_pose[2] + offset_range["z"][1]]
+        print("Precomputing IK Solutions for the box sampling space")
 
-        x_limits = torch.linspace(
-            self.x_sample_range[0], self.x_sample_range[1], cfg.ik_grid_precision + 1, device=self.device
-        )
-        y_limits = torch.linspace(
-            self.y_sample_range[0], self.y_sample_range[1], cfg.ik_grid_precision + 1, device=self.device
-        )
-        z_limits = torch.linspace(
-            self.z_sample_range[0], self.z_sample_range[1], cfg.ik_grid_precision + 1, device=self.device
-        )
+        # # computing the ik vector
+        # init_box_pose = cfg.scene.object.init_state.pos
+        # offset_range = cfg.events.reset_object_position.params["pose_range"]
+        # self.x_sample_range = [init_box_pose[0] + offset_range["x"][0], init_box_pose[0] + offset_range["x"][1]]
+        # self.y_sample_range = [init_box_pose[1] + offset_range["y"][0], init_box_pose[1] + offset_range["y"][1]]
+        # self.z_sample_range = [init_box_pose[2] + offset_range["z"][0], init_box_pose[2] + offset_range["z"][1]]
 
-        x_centers = (x_limits[:-1] + x_limits[1:]) / 2
-        y_centers = (y_limits[:-1] + y_limits[1:]) / 2
-        z_centers = (z_limits[:-1] + z_limits[1:]) / 2
-        cx, cy, cz = torch.meshgrid(x_centers, y_centers, z_centers, indexing="ij")
-        centers = torch.stack((cx, cy, cz), dim=-1)
+        # x_limits = torch.linspace(
+        #     self.x_sample_range[0], self.x_sample_range[1], cfg.ik_grid_precision + 1, device=self.device
+        # )
+        # y_limits = torch.linspace(
+        #     self.y_sample_range[0], self.y_sample_range[1], cfg.ik_grid_precision + 1, device=self.device
+        # )
+        # z_limits = torch.linspace(
+        #     self.z_sample_range[0], self.z_sample_range[1], cfg.ik_grid_precision + 1, device=self.device
+        # )
 
-        orientation = torch.tensor([0.0, 1.0, 0.0, 0.0], device=self.device).repeat(
-            cfg.ik_grid_precision, cfg.ik_grid_precision, cfg.ik_grid_precision, 1
-        )
-        centers = torch.cat((centers, orientation), dim=-1)
+        # x_centers = (x_limits[:-1] + x_limits[1:]) / 2
+        # y_centers = (y_limits[:-1] + y_limits[1:]) / 2
+        # z_centers = (z_limits[:-1] + z_limits[1:]) / 2
+        # cx, cy, cz = torch.meshgrid(x_centers, y_centers, z_centers, indexing="ij")
+        # centers = torch.stack((cx, cy, cz), dim=-1)
 
-        centers = centers.reshape(cfg.ik_grid_precision**3, 7)
+        # orientation = torch.tensor([0.0, 1.0, 0.0, 0.0], device=self.device).repeat(
+        #     cfg.ik_grid_precision, cfg.ik_grid_precision, cfg.ik_grid_precision, 1
+        # )
+        # centers = torch.cat((centers, orientation), dim=-1)
 
-        ######
-        # IK #
-        ######
+        # centers = centers.reshape(cfg.ik_grid_precision**3, 7)
+
+        # ######
+        # # IK #
+        # ######
 
         # initializing kinematic chain from urdf for IK
         script_dir = os.path.dirname(__file__)
@@ -82,24 +84,24 @@ class BoxPushingEnv(ManagerBasedRLEnv):
         self.chain = pk.build_serial_chain_from_urdf(urdf_data, "panda_hand")
         self.chain = self.chain.to(device=self.device)
 
-        # processing target box poses
-        target_poses = centers + torch.tensor([0.0, 0.0, 0.27, 0.0, 0.0, 0.0, 0.0], device=self.device)
-        target_transforms = Transform3d(pos=target_poses[:, :3], rot=target_poses[:, 3:7], device=self.device)
+        # # processing target box poses
+        # target_poses = centers + torch.tensor([0.0, 0.0, 0.27, 0.0, 0.0, 0.0, 0.0], device=self.device)
+        # target_transforms = Transform3d(pos=target_poses[:, :3], rot=target_poses[:, 3:7], device=self.device)
 
-        robot: Articulation = self.scene["robot"]
+        # robot: Articulation = self.scene["robot"]
 
-        # solving IK
-        ik = pk.PseudoInverseIK(
-            self.chain,
-            retry_configs=robot.data.joint_pos[0, :7].unsqueeze(0),  # initial config
-            joint_limits=robot.data.joint_limits[0, :7],
-            lr=0.2,
-        )
-        sol = ik.solve(target_transforms)
-        joint_pos_des = sol.solutions[:, 0]
-        self.ik_grid_solutions = joint_pos_des.reshape(
-            cfg.ik_grid_precision, cfg.ik_grid_precision, cfg.ik_grid_precision, 7
-        )
+        # # solving IK
+        # ik = pk.PseudoInverseIK(
+        #     self.chain,
+        #     retry_configs=robot.data.joint_pos[0, :7].unsqueeze(0),  # initial config
+        #     joint_limits=robot.data.joint_limits[0, :7],
+        #     lr=0.2,
+        # )
+        # sol = ik.solve(target_transforms)
+        # joint_pos_des = sol.solutions[:, 0]
+        # self.ik_grid_solutions = joint_pos_des.reshape(
+        #     cfg.ik_grid_precision, cfg.ik_grid_precision, cfg.ik_grid_precision, 7
+        # )
 
     def compute_index(self, value, min_val, max_val):
         """
