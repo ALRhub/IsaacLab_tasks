@@ -13,12 +13,18 @@ from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.sensors import FrameTransformer
 from omni.isaac.lab.utils.math import combine_frame_transforms
 
+
 if TYPE_CHECKING:
-    from omni.isaac.lab.envs import ManagerBasedRLEnv
+    from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env import BoxPushingEnv
+
+
+# TODO resolve import
+def action_scaled_l2(env: BoxPushingEnv) -> torch.Tensor:
+    return torch.sum(torch.square(env.action_manager.action * env.cfg.actions.body_joint_effort.scale), dim=1)
 
 
 def object_ee_distance(
-    env: ManagerBasedRLEnv,
+    env: BoxPushingEnv,
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ) -> torch.Tensor:
@@ -37,7 +43,7 @@ def object_ee_distance(
 
 
 def object_goal_position_distance(
-    env: ManagerBasedRLEnv,
+    env: BoxPushingEnv,
     command_name: str,
     end_ep: bool,
     end_ep_weight: float = 0.0,
@@ -63,7 +69,7 @@ def object_goal_position_distance(
 
 
 def object_goal_orientation_distance(
-    env: ManagerBasedRLEnv,
+    env: BoxPushingEnv,
     command_name: str,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
@@ -80,7 +86,7 @@ def object_goal_orientation_distance(
 
 
 # TODO somehow asset_cfg.joint_ids is None so has to be replaced with :
-def joint_pos_limits_bp(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+def joint_pos_limits_bp(env: BoxPushingEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """Penalize joint positions if they cross the soft limits.
 
     This is computed as a sum of the absolute value of the difference between the joint position and the soft limits.
@@ -94,7 +100,7 @@ def joint_pos_limits_bp(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Scen
 
 
 def end_ep_vel(
-    env: ManagerBasedRLEnv,
+    env: BoxPushingEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
     #  retrieving velocity
@@ -111,7 +117,7 @@ def end_ep_vel(
 
 
 def joint_vel_limits_bp(
-    env: ManagerBasedRLEnv,
+    env: BoxPushingEnv,
     soft_ratio: float,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
@@ -134,7 +140,7 @@ def joint_vel_limits_bp(
 
 
 def rod_inclined_angle(
-    env: ManagerBasedRLEnv,
+    env: BoxPushingEnv,
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ) -> torch.Tensor:
     desired_rod_quat = torch.tensor([0.0, 1.0, 0.0, 0.0], device=env.device).repeat(env.num_envs, 1)

@@ -141,7 +141,7 @@ class EventCfg:
         func=mdp.sample_box_poses,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.15, 0.15), "y": (-0.45, 0.45), "z": (0.0, 0.0)},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
     )
@@ -170,7 +170,7 @@ class DenseRewardCfg:
         weight=-2.0,
     )
 
-    energy_cost = RewTerm(func=mdp.action_l2, weight=-5e-4)
+    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-5e-4)
 
     joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0)
 
