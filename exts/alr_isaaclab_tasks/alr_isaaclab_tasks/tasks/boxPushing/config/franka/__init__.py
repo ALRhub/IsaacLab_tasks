@@ -18,7 +18,7 @@ from . import agents, joint_effort_env_cfg
 
 # Dense reward
 for reward_type in ["Dense", "TemporalSparse"]:
-    for rsl_rl_cfg_name in ["Step_RL_Orbit_HP", "Step_RL_Fancy_Gym_HP"]:
+    for rsl_rl_cfg_name in ["Step_RL_IsaacLab_HP", "Step_RL_Fancy_Gym_HP"]:
         gym.register(
             id=f"Isaac-Box-Pushing-{reward_type}-{rsl_rl_cfg_name}-Franka-v0",
             entry_point="alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env:BoxPushingEnv",

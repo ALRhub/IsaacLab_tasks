@@ -13,12 +13,12 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
 
 
 @configclass
-class BoxPushingPPORunnerCfg_Step_RL_Orbit_HP(RslRlOnPolicyRunnerCfg):
+class BoxPushingPPORunnerCfg_Step_RL_IsaacLab_HP(RslRlOnPolicyRunnerCfg):
     seed = -1
     num_steps_per_env = 24
     max_iterations = 800
     save_interval = 50
-    experiment_name = "step_rl_Orbit_HP"
+    experiment_name = "step_rl_IsaacLab_HP"
     empirical_normalization = True
     policy = RslRlPpoActorCriticCfg(
         init_noise_std=1.0,
