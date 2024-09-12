@@ -48,7 +48,7 @@ def reset_root_state_with_random_yaw_orientation_and_no_collision(
     min_dist = sqrt(cube_size**2 * 2) + 0.001
     for i in range(max_sample_tries):
 
-        distances = torch.norm(top_positions[env_ids, :3] - bot_positions[env_ids, :3], dim=1)
+        distances = torch.linalg.norm(top_positions[env_ids, :3] - bot_positions[env_ids, :3], dim=1)
         mask = distances >= min_dist
 
         if mask.all():

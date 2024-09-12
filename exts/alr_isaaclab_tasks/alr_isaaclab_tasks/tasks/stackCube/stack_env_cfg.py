@@ -7,8 +7,8 @@ from dataclasses import MISSING
 
 import omni.isaac.lab.sim as sim_utils
 from omni.isaac.lab.assets import ArticulationCfg, AssetBaseCfg, RigidObjectCfg
+from omni.isaac.lab.sensors import ContactSensorCfg
 from omni.isaac.lab.envs import ManagerBasedRLEnvCfg
-from omni.isaac.lab.managers import CurriculumTermCfg as CurrTerm
 from omni.isaac.lab.managers import EventTermCfg as EventTerm
 from omni.isaac.lab.managers import ObservationGroupCfg as ObsGroup
 from omni.isaac.lab.managers import ObservationTermCfg as ObsTerm
@@ -38,6 +38,8 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 
     # robots: will be populated by agent env cfg
     robot: ArticulationCfg = MISSING
+    # contact forces: will be populated by agent env cfg
+    contact_forces: ContactSensorCfg = MISSING
     # end-effector sensor: will be populated by agent env cfg
     ee_frame: FrameTransformerCfg = MISSING
 
@@ -184,9 +186,8 @@ class TerminationsCfg:
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
-    # object_dropping = DoneTerm(
-    #     func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object")}
-    # )
+    # TODO check if termination conditions truncates the episode
+    cubes_stgacked = DoneTerm(func=mdp.cubes_stacked)
 
 
 ##

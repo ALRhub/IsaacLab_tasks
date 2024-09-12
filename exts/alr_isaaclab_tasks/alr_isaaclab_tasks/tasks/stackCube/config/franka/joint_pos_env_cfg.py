@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from omni.isaac.lab.assets import RigidObjectCfg
-from omni.isaac.lab.sensors import FrameTransformerCfg
+from omni.isaac.lab.sensors import FrameTransformerCfg, ContactSensorCfg
 from omni.isaac.lab.sensors.frame_transformer.frame_transformer_cfg import OffsetCfg
 from omni.isaac.lab.sim.schemas.schemas_cfg import RigidBodyPropertiesCfg
 from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import UsdFileCfg
@@ -14,11 +14,13 @@ from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
 from alr_isaaclab_tasks.tasks.stackCube import mdp
 from alr_isaaclab_tasks.tasks.stackCube.stack_env_cfg import StackEnvCfg
 
+import omni.isaac.lab.sim as sim_utils
+
 ##
 # Pre-defined configs
 ##
 from omni.isaac.lab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from omni.isaac.lab_assets.franka import FRANKA_PANDA_CFG  # isort: skip
+from omni.isaac.lab_assets.franka import FRANKA_PANDA_CFG, ISAACLAB_NUCLEUS_DIR  # isort: skip
 
 
 @configclass
@@ -29,6 +31,26 @@ class FrankaStackCubeEnvCfg(StackEnvCfg):
 
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        # activating contact sensors
+        self.scene.robot.spawn = sim_utils.UsdFileCfg(
+            usd_path=f"{ISAACLAB_NUCLEUS_DIR}/Robots/FrankaEmika/panda_instanceable.usd",
+            activate_contact_sensors=True,
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                disable_gravity=False,
+                max_depenetration_velocity=5.0,
+            ),
+            articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                enabled_self_collisions=True, solver_position_iteration_count=8, solver_velocity_iteration_count=0
+            ),
+        )
+
+        self.scene.contact_forces = ContactSensorCfg(
+            prim_path="{ENV_REGEX_NS}/Robot/.*finger",
+            filter_prim_paths_expr=["{ENV_REGEX_NS}/TopCube"],
+            update_period=0.0,
+            history_length=1,
+            debug_vis=True,
+        )
 
         # Set actions for the specific robot type (franka)
         self.actions.body_joint_pos = mdp.JointPositionActionCfg(
