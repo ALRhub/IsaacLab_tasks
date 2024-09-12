@@ -21,6 +21,7 @@ from omni.isaac.lab.managers import ObservationTermCfg as ObsTerm
 from omni.isaac.lab.managers import RewardTermCfg as RewTerm
 from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
 from omni.isaac.lab.managers import SceneEntityCfg
+from omni.isaac.lab.envs.mdp.commands import UniformPoseCommandCfg
 from omni.isaac.lab.scene import InteractiveSceneCfg
 from omni.isaac.lab.sensors.frame_transformer.frame_transformer_cfg import FrameTransformerCfg
 from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
@@ -82,14 +83,12 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 class CommandsCfg:
     """Command terms for the MDP."""
 
-    object_pose = UniformPoseWithMinDistCommandCfg(
+    object_pose = UniformPoseCommandCfg(
         asset_name="robot",
-        body_name=MISSING,  # will be set by agent env cfg
-        box_name="object",
-        min_dist=0.15,
+        body_name=MISSING,
         resampling_time_range=(10.0, 10.0),
         debug_vis=True,
-        ranges=UniformPoseWithMinDistCommandCfg.Ranges(
+        ranges=UniformPoseCommandCfg.Ranges(
             pos_x=(0.3, 0.6),
             pos_y=(-0.45, 0.45),
             pos_z=(0.007, 0.007),
