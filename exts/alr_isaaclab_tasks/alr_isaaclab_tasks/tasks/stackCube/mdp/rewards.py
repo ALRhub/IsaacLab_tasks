@@ -16,6 +16,8 @@ from omni.isaac.lab.utils.math import combine_frame_transforms
 if TYPE_CHECKING:
     from omni.isaac.lab.envs import ManagerBasedRLEnv
 
+CUBE_HALF_SIZE = 0.025
+
 
 def object_is_lifted(
     env: ManagerBasedRLEnv, minimal_height: float, object_cfg: SceneEntityCfg = SceneEntityCfg("object")
@@ -25,10 +27,10 @@ def object_is_lifted(
     return torch.where(object.data.root_pos_w[:, 2] > minimal_height, 1.0, 0.0)
 
 
-def object_ee_distance(
+def cube_ee_distance(
     env: ManagerBasedRLEnv,
     std: float,
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("top_cube"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ) -> torch.Tensor:
     """Reward the agent for reaching the object using tanh-kernel."""
@@ -45,23 +47,35 @@ def object_ee_distance(
     return 1 - torch.tanh(object_ee_distance / std)
 
 
-def object_goal_distance(
+# TODO only if grasped
+def cube_goal_distance(
     env: ManagerBasedRLEnv,
     std: float,
-    minimal_height: float,
-    command_name: str,
-    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    top_cube_cfg: SceneEntityCfg = SceneEntityCfg("top_cube"),
+    bot_cube_cfg: SceneEntityCfg = SceneEntityCfg("bot_cube"),
 ) -> torch.Tensor:
     """Reward the agent for tracking the goal pose using tanh-kernel."""
     # extract the used quantities (to enable type-hinting)
-    robot: RigidObject = env.scene[robot_cfg.name]
-    object: RigidObject = env.scene[object_cfg.name]
-    command = env.command_manager.get_command(command_name)
+    top_cube: RigidObject = env.scene[top_cube_cfg.name]
+    bot_cube: RigidObject = env.scene[bot_cube_cfg.name]
     # compute the desired position in the world frame
-    des_pos_b = command[:, :3]
-    des_pos_w, _ = combine_frame_transforms(robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], des_pos_b)
+    des_pos_w = bot_cube.data.root_pos_w
+    des_pos_w[:, 2] += CUBE_HALF_SIZE * 2
     # distance of the end-effector to the object: (num_envs,)
-    distance = torch.linalg.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)
+    distance = torch.linalg.norm(top_cube.data.root_pos_w - des_pos_w, dim=1)
     # rewarded if the object is lifted above the threshold
-    return (object.data.root_pos_w[:, 2] > minimal_height) * (1 - torch.tanh(distance / std))
+    return 1 - torch.tanh(distance / std)
+
+
+def cube_static(
+    env: ManagerBasedRLEnv,
+    std: float,
+    top_cube_cfg: SceneEntityCfg = SceneEntityCfg("top_cube"),
+) -> torch.Tensor:
+    """Reward the agent for tracking the goal pose using tanh-kernel."""
+    # extract the used quantities (to enable type-hinting)
+    top_cube: RigidObject = env.scene[top_cube_cfg.name]
+
+    lin_vel = torch.linalg.norm(top_cube.data.root_lin_vel_b, dim=1)
+    ang_vel = torch.linalg.norm(top_cube.data.root_ang_vel_b, dim=1)
+    return 1 - torch.tanh(lin_vel / std + ang_vel)

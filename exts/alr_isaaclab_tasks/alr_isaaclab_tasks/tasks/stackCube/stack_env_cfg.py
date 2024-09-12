@@ -154,30 +154,21 @@ class EventCfg:
 class RewardsCfg:
     """Reward terms for the MDP."""
 
-    # reaching_object = RewTerm(func=mdp.object_ee_distance, params={"std": 0.1}, weight=1.0)
+    reaching_top_cube = RewTerm(func=mdp.cube_ee_distance, params={"std": 0.2}, weight=2.0)
 
-    # lifting_object = RewTerm(func=mdp.object_is_lifted, params={"minimal_height": 0.04}, weight=15.0)
+    # TODO only if grasped
+    place_top_cube = RewTerm(
+        func=mdp.cube_goal_distance,
+        params={"std": 0.2},
+        weight=1.0,
+    )
 
-    # object_goal_tracking = RewTerm(
-    #     func=mdp.object_goal_distance,
-    #     params={"std": 0.3, "minimal_height": 0.04, "command_name": "object_pose"},
-    #     weight=16.0,
-    # )
-
-    # object_goal_tracking_fine_grained = RewTerm(
-    #     func=mdp.object_goal_distance,
-    #     params={"std": 0.05, "minimal_height": 0.04, "command_name": "object_pose"},
-    #     weight=5.0,
-    # )
-
-    # # action penalty
-    # action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
-
-    # joint_vel = RewTerm(
-    #     func=mdp.joint_vel_l2,
-    #     weight=-1e-4,
-    #     params={"asset_cfg": SceneEntityCfg("robot")},
-    # )
+    # TODO only if released
+    place_top_cube = RewTerm(
+        func=mdp.cube_goal_distance,
+        params={"std": 0.1},
+        weight=1.0,
+    )
 
 
 @configclass
@@ -186,8 +177,7 @@ class TerminationsCfg:
 
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
-    # TODO check if termination conditions truncates the episode
-    cubes_stgacked = DoneTerm(func=mdp.cubes_stacked)
+    cubes_stacked = DoneTerm(func=mdp.cubes_stacked)
 
 
 ##
@@ -213,7 +203,7 @@ class StackEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
         # general settings
         self.decimation = 2
-        self.episode_length_s = 5.0
+        self.episode_length_s = 1.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation

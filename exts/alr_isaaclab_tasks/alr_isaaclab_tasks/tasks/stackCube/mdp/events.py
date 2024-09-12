@@ -41,14 +41,14 @@ def reset_root_state_with_random_yaw_orientation_and_no_collision(
     top_rand_samples = math_utils.sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 3), device=top_cube.device)
     bot_rand_samples = math_utils.sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 3), device=bot_cube.device)
 
-    top_positions = top_root_states[:, 0:3] + env.scene.env_origins[env_ids] + top_rand_samples
-    bot_positions = bot_root_states[:, 0:3] + env.scene.env_origins[env_ids] + bot_rand_samples
+    top_positions = top_root_states[:, :3] + env.scene.env_origins[env_ids] + top_rand_samples
+    bot_positions = bot_root_states[:, :3] + env.scene.env_origins[env_ids] + bot_rand_samples
 
     # checking if the cubes are colliding and resample if true
     min_dist = sqrt(cube_size**2 * 2) + 0.001
     for i in range(max_sample_tries):
 
-        distances = torch.linalg.norm(top_positions[env_ids, :3] - bot_positions[env_ids, :3], dim=1)
+        distances = torch.linalg.norm(top_positions[:, :3] - bot_positions[:, :3], dim=1)
         mask = distances >= min_dist
 
         if mask.all():
@@ -57,10 +57,10 @@ def reset_root_state_with_random_yaw_orientation_and_no_collision(
             bot_rand_samples = math_utils.sample_uniform(
                 ranges[:, 0], ranges[:, 1], (len(env_ids), 3), device=bot_cube.device
             )
-            bot_positions[env_ids, :] = torch.where(
+            bot_positions = torch.where(
                 mask.unsqueeze(1),
-                bot_positions[env_ids, :],
-                bot_root_states[:, 0:3] + env.scene.env_origins[env_ids] + bot_rand_samples[env_ids, :],
+                bot_positions,
+                bot_root_states[:, :3] + env.scene.env_origins[env_ids] + bot_rand_samples,
             )
 
     top_orientations = math_utils.random_yaw_orientation(len(env_ids), device=top_cube.device)
