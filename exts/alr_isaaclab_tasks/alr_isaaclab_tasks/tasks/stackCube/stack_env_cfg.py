@@ -164,8 +164,8 @@ class RewardsCfg:
     )
 
     # TODO only if released
-    place_top_cube = RewTerm(
-        func=mdp.cube_goal_distance,
+    static_top_cube = RewTerm(
+        func=mdp.cube_static,
         params={"std": 0.1},
         weight=1.0,
     )
