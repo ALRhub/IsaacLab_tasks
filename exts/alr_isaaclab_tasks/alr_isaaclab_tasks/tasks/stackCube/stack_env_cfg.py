@@ -89,11 +89,39 @@ class ObservationsCfg:
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
 
-        joint_pos = ObsTerm(func=mdp.joint_pos_rel)
-        joint_vel = ObsTerm(func=mdp.joint_vel_rel)
-        # object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
-        # target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
-        actions = ObsTerm(func=mdp.last_action)
+        top_cube_position = ObsTerm(
+            func=mdp.object_position_in_robot_root_frame,
+            params={
+                "object_cfg": SceneEntityCfg("top_cube", body_names="TopCube"),
+            },
+        )
+        bot_cube_position = ObsTerm(
+            func=mdp.object_position_in_robot_root_frame,
+            params={
+                "object_cfg": SceneEntityCfg("bot_cube", body_names="BotCube"),
+            },
+        )
+
+        tcp_to_top_cube_pos = ObsTerm(
+            func=mdp.cube_ee_vector,
+            params={
+                "object_cfg": SceneEntityCfg("top_cube", body_names="TopCube"),
+            },
+        )
+        tcp_to_bot_cube_pos = ObsTerm(
+            func=mdp.cube_ee_vector,
+            params={
+                "object_cfg": SceneEntityCfg("bot_cube", body_names="BotCube"),
+            },
+        )
+
+        cube_to_cube_pos = ObsTerm(
+            func=mdp.cube_to_cube_vector,
+            params={
+                "top_cube_cfg": SceneEntityCfg("top_cube", body_names="TopCube"),
+                "bot_cube_cfg": SceneEntityCfg("bot_cube", body_names="BotCube"),
+            },
+        )
 
         def __post_init__(self):
             self.enable_corruption = True
