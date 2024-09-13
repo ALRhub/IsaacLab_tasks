@@ -154,21 +154,7 @@ class EventCfg:
 class RewardsCfg:
     """Reward terms for the MDP."""
 
-    reaching_top_cube = RewTerm(func=mdp.cube_ee_distance, params={"std": 0.2}, weight=2.0)
-
-    # TODO only if grasped
-    place_top_cube = RewTerm(
-        func=mdp.cube_goal_distance,
-        params={"std": 0.2},
-        weight=1.0,
-    )
-
-    # TODO only if released
-    static_top_cube = RewTerm(
-        func=mdp.cube_static,
-        params={"std": 0.1},
-        weight=1.0,
-    )
+    dense_reward = RewTerm(func=mdp.dense_stepped_reward, weight=2.0)
 
 
 @configclass
@@ -203,7 +189,7 @@ class StackEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
         # general settings
         self.decimation = 2
-        self.episode_length_s = 1.0
+        self.episode_length_s = 2.0
         # simulation settings
         self.sim.dt = 0.01  # 100Hz
         self.sim.render_interval = self.decimation

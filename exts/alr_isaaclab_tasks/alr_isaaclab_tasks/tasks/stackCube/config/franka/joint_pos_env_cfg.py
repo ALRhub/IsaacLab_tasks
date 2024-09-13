@@ -45,11 +45,12 @@ class FrankaStackCubeEnvCfg(StackEnvCfg):
         )
 
         self.scene.contact_forces = ContactSensorCfg(
-            prim_path="{ENV_REGEX_NS}/Robot/.*finger",
+            # prim_path="{ENV_REGEX_NS}/Robot/.*finger",
+            prim_path="{ENV_REGEX_NS}/Robot/panda_leftfinger",
             filter_prim_paths_expr=["{ENV_REGEX_NS}/TopCube"],
             update_period=0.0,
             history_length=1,
-            debug_vis=True,
+            debug_vis=False,
         )
 
         # Set actions for the specific robot type (franka)

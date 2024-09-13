@@ -14,7 +14,7 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
 
 @configclass
 class StackCubePPORunnerCfg(RslRlOnPolicyRunnerCfg):
-    num_steps_per_env = 50
+    num_steps_per_env = 100
     max_iterations = 1000
     save_interval = 50
     experiment_name = "franka_stack"
