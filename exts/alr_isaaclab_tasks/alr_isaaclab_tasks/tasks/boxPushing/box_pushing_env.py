@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import gymnasium as gym
 
+from omni.isaac.lab.utils.array import convert_to_torch
+
 from omni.isaac.lab.envs.manager_based_rl_env import ManagerBasedRLEnv
 from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import BoxPushingEnvCfg
 from omni.isaac.lab.assets import Articulation
@@ -66,7 +68,7 @@ class BoxPushingEnv(ManagerBasedRLEnv):
         # cx, cy, cz = torch.meshgrid(x_centers, y_centers, z_centers, indexing="ij")
         # centers = torch.stack((cx, cy, cz), dim=-1)
 
-        # orientation = torch.tensor([0.0, 1.0, 0.0, 0.0], device=self.device).repeat(
+        # orientation = convert_to_torch([0.0, 1.0, 0.0, 0.0], device=self.device).repeat(
         #     cfg.ik_grid_precision, cfg.ik_grid_precision, cfg.ik_grid_precision, 1
         # )
         # centers = torch.cat((centers, orientation), dim=-1)
@@ -87,7 +89,7 @@ class BoxPushingEnv(ManagerBasedRLEnv):
         self.chain = self.chain.to(device=self.device)
 
         # # processing target box poses
-        # target_poses = centers + torch.tensor([0.0, 0.0, 0.27, 0.0, 0.0, 0.0, 0.0], device=self.device)
+        # target_poses = centers + convert_to_torch([0.0, 0.0, 0.27, 0.0, 0.0, 0.0, 0.0], device=self.device)
         # target_transforms = Transform3d(pos=target_poses[:, :3], rot=target_poses[:, 3:7], device=self.device)
 
         # robot: Articulation = self.scene["robot"]

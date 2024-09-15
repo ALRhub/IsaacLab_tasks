@@ -38,6 +38,8 @@ import alr_isaaclab_tasks.tasks  # noqa: F401
 
 from omni.isaac.lab_tasks.utils import parse_env_cfg
 
+from omni.isaac.lab.utils.array import convert_to_torch
+
 
 def main():
     """Random actions agent with Isaac Lab environment."""
@@ -58,7 +60,7 @@ def main():
         # run everything in inference mode
         with torch.inference_mode():
             # sample actions from -1 to 1
-            actions = torch.tensor(env.action_space.sample(), device=env.unwrapped.device)
+            actions = convert_to_torch(env.action_space.sample(), device=env.unwrapped.device)
             # apply actions
             env.step(actions)
 

@@ -42,6 +42,8 @@ import alr_isaaclab_tasks.tasks  # noqa: F401
 
 from omni.isaac.lab_tasks.utils import parse_env_cfg
 
+from omni.isaac.lab.utils.array import convert_to_torch
+
 
 def main():
     """Zero actions agent with Isaac Lab environment."""
@@ -68,7 +70,7 @@ def main():
         with torch.inference_mode():
             # compute zero actions
             actions_fg = env_fg.action_space.sample()
-            actions = torch.tensor(actions_fg, device=env.unwrapped.device)
+            actions = convert_to_torch(actions_fg, device=env.unwrapped.device)
             actions = actions.repeat(args_cli.num_envs, 1)
             # print("=====")
             # print("IsaacLab: ", actions[0])

@@ -95,7 +95,7 @@ class UniformPoseWithMinDistCommand(UniformPoseCommand):
         self.pose_command_b[env_ids, 2] = r.uniform_(*self.cfg.ranges.pos_z)
 
         for _ in range(self.max_iters):
-            distances = torch.norm(self.pose_command_b[env_ids, :3] - box_position_b[env_ids, :], dim=1)
+            distances = torch.linalg.norm(self.pose_command_b[env_ids, :3] - box_position_b[env_ids, :], dim=1)
             mask = distances >= self.min_dist
 
             if mask.all():
@@ -141,8 +141,8 @@ class UniformPoseWithMinDistCommand(UniformPoseCommand):
             self.robot.data.body_state_w[:, self.body_idx, :3],
             self.robot.data.body_state_w[:, self.body_idx, 3:7],
         )
-        self.metrics["position_error"] = torch.norm(pos_error, dim=-1)
-        self.metrics["orientation_error"] = torch.norm(rot_error, dim=-1)
+        self.metrics["position_error"] = torch.linalg.norm(pos_error, dim=-1)
+        self.metrics["orientation_error"] = torch.linalg.norm(rot_error, dim=-1)
 
     def _set_debug_vis_impl(self, debug_vis: bool):
         # create markers if necessary for the first tome

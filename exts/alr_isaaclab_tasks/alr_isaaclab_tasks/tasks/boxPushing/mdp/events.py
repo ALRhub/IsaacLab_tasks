@@ -14,6 +14,7 @@ import pytorch_kinematics as pk
 from omni.isaac.lab.assets import Articulation, RigidObject
 from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.utils.math import quat_from_euler_xyz, sample_uniform
+from omni.isaac.lab.utils.array import convert_to_torch
 
 
 if TYPE_CHECKING:
@@ -26,18 +27,17 @@ def sample_box_poses(
     pose_range: dict[str, tuple[float, float]],
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ):
-    """Reset the asset root state to a random position and velocity uniformly within the given ranges.
+    """Reset the asset root state to a random position uniformly within the given ranges.
 
-    This function randomizes the root position and velocity of the asset.
+    This function randomizes the root position of the asset.
 
     * It samples the root position from the given ranges and adds them to the default root position, before setting
       them into the physics simulation.
     * It samples the root orientation from the given ranges and sets them into the physics simulation.
-    * It samples the root velocity from the given ranges and sets them into the physics simulation.
 
     The function takes a dictionary of position and velocity ranges for each axis and rotation. The keys of the
     dictionary are ``x``, ``y``, ``z``, ``roll``, ``pitch``, and ``yaw``. The values are tuples of the form
-    ``(min, max)``. If the dictionary does not contain a key, the position or velocity is set to zero for that axis.
+    ``(min, max)``. If the dictionary does not contain a key, the position is set to zero for that axis.
     """
     # extract the used quantities (to enable type-hinting)
     asset: RigidObject = env.scene[asset_cfg.name]
@@ -46,10 +46,10 @@ def sample_box_poses(
 
     # poses
     range_list = [pose_range.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]]
-    ranges = torch.tensor(range_list, device=asset.device)
+    ranges = convert_to_torch(range_list, device=asset.device)
     rand_samples = sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 6), device=asset.device)
 
-    positions = root_states[:, 0:3] + env.scene.env_origins[env_ids] + rand_samples[:, 0:3]
+    positions = root_states[:, :3] + env.scene.env_origins[env_ids] + rand_samples[:, 0:3]
     orientations = quat_from_euler_xyz(rand_samples[:, 3], rand_samples[:, 4], rand_samples[:, 5])
 
     # set into the physics simulation
@@ -71,11 +71,11 @@ def reset_robot_cfg_with_IK(
 
     # processing target box poses
     PUSH_ROD_OFFSET = 0.27
-    target_poses = boxes.data.body_state_w[env_ids, 0, :7] + torch.tensor(
+    target_poses = boxes.data.body_state_w[env_ids, 0, :7] + convert_to_torch(
         [0.0, 0.0, PUSH_ROD_OFFSET, 0.0, 0.0, 0.0, 0.0], device=robot.device
     )
     target_poses[:, :3] -= robot.data.root_pos_w[env_ids]
-    target_poses[:, 3:7] = torch.tensor([0.0, 1.0, 0.0, 0.0], device=robot.device)
+    target_poses[:, 3:7] = convert_to_torch([0.0, 1.0, 0.0, 0.0], device=robot.device)
     target_transforms = Transform3d(pos=target_poses[:, :3], rot=target_poses[:, 3:7], device=robot.device)
 
     # solving IK
