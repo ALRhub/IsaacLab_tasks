@@ -44,7 +44,7 @@ class BoxPushingPPORunnerCfg_Step_RL_IsaacLab_HP(RslRlOnPolicyRunnerCfg):
 
 @configclass
 class BoxPushingPPORunnerCfg_Step_RL_Fancy_Gym_HP(RslRlOnPolicyRunnerCfg):
-    seed = -1
+    seed = 42
     num_steps_per_env = 100
     max_iterations = 1042
     save_interval = 50
@@ -63,7 +63,7 @@ class BoxPushingPPORunnerCfg_Step_RL_Fancy_Gym_HP(RslRlOnPolicyRunnerCfg):
         entropy_coef=0.006,
         num_learning_epochs=10,
         num_mini_batches=40,
-        learning_rate=5.0e-5,
+        learning_rate=1.0e-4,
         schedule="fixed",
         gamma=1.0,
         lam=0.95,
