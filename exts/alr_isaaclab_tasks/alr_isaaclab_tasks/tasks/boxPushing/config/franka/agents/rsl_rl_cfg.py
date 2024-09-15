@@ -46,14 +46,14 @@ class BoxPushingPPORunnerCfg_Step_RL_IsaacLab_HP(RslRlOnPolicyRunnerCfg):
 class BoxPushingPPORunnerCfg_Step_RL_Fancy_Gym_HP(RslRlOnPolicyRunnerCfg):
     seed = -1
     num_steps_per_env = 100
-    max_iterations = 2500
-    save_interval = 250
+    max_iterations = 1042
+    save_interval = 50
     experiment_name = "step_rl_Fancy_Gym_HP"
     empirical_normalization = True
     policy = RslRlPpoActorCriticCfg(
         init_noise_std=1.0,
-        actor_hidden_dims=[256, 256],
-        critic_hidden_dims=[256, 256],
+        actor_hidden_dims=[512, 512],
+        critic_hidden_dims=[512, 512],
         activation="tanh",
     )
     algorithm = RslRlPpoAlgorithmCfg(
@@ -63,9 +63,9 @@ class BoxPushingPPORunnerCfg_Step_RL_Fancy_Gym_HP(RslRlOnPolicyRunnerCfg):
         entropy_coef=0.006,
         num_learning_epochs=10,
         num_mini_batches=40,
-        learning_rate=1.0e-4,
+        learning_rate=5.0e-5,
         schedule="fixed",
-        gamma=0.99,
+        gamma=1.0,
         lam=0.95,
         desired_kl=0.01,
         max_grad_norm=1.0,
