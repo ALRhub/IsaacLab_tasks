@@ -31,6 +31,8 @@ from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
 from alr_isaaclab_tasks.tasks.boxPushing.mdp.commands.pose_command_min_dist_cfg import UniformPoseWithMinDistCommandCfg
 from alr_isaaclab_tasks.tasks.boxPushing import mdp
 
+SIM_DT = 0.01  # 100Hz
+
 ##
 # Scene definition
 ##
@@ -153,56 +155,56 @@ class EventCfg:
 class DenseRewardCfg:
     """Reward terms for the MDP."""
 
-    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-2.0)
+    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-2.0 / SIM_DT)
 
     object_goal_position_distance = RewTerm(
         func=mdp.object_goal_position_distance,
         params={"command_name": "object_pose"},
-        weight=-3.5,
+        weight=-3.5 / SIM_DT,
     )
 
     object_goal_orientation_distance = RewTerm(
         func=mdp.object_goal_orientation_distance,
         params={"command_name": "object_pose"},
-        weight=-1.0 / torch.pi,
+        weight=-1.0 / torch.pi / SIM_DT,
     )
 
-    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-5e-4)
+    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-5e-4 / SIM_DT)
 
-    joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0)
+    joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0 / SIM_DT)
 
-    joint_velocity_limit = RewTerm(func=mdp.joint_vel_limits_bp, params={"soft_ratio": 1.0}, weight=-1.0)
+    joint_velocity_limit = RewTerm(func=mdp.joint_vel_limits_bp, params={"soft_ratio": 1.0}, weight=-1.0 / SIM_DT)
 
-    rod_inclined_angle = RewTerm(func=mdp.rod_inclined_angle, weight=-1.0)
+    rod_inclined_angle = RewTerm(func=mdp.rod_inclined_angle, weight=-1.0 / SIM_DT)
 
 
 @configclass
 class TemporalSparseRewardCfg:  # TODO set weights
     """Reward terms for the MDP."""
 
-    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-2.0)
+    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-2.0 / SIM_DT)
 
     object_goal_position_distance = RewTerm(
         func=mdp.object_goal_position_distance,
         params={"end_ep": True, "end_ep_weight": 100.0, "command_name": "object_pose"},
-        weight=-3.5,
+        weight=-3.5 / SIM_DT,
     )
 
     object_goal_orientation_distance = RewTerm(
         func=mdp.object_goal_orientation_distance,
         params={"end_ep": True, "end_ep_weight": 100.0, "command_name": "object_pose"},
-        weight=-1.0 / torch.pi,
+        weight=-1.0 / torch.pi / SIM_DT,
     )
 
-    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-0.02)
+    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-0.02 / SIM_DT)
 
-    joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0)
+    joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0 / SIM_DT)
 
-    joint_velocity_limit = RewTerm(func=mdp.joint_vel_limits_bp, params={"soft_ratio": 1.0}, weight=-1.0)
+    joint_velocity_limit = RewTerm(func=mdp.joint_vel_limits_bp, params={"soft_ratio": 1.0}, weight=-1.0 / SIM_DT)
 
-    rod_inclined_angle = RewTerm(func=mdp.rod_inclined_angle, weight=-1.0)
+    rod_inclined_angle = RewTerm(func=mdp.rod_inclined_angle, weight=-1.0 / SIM_DT)
 
-    end_ep_vel = RewTerm(func=mdp.end_ep_vel, weight=-50.0)
+    end_ep_vel = RewTerm(func=mdp.end_ep_vel, weight=-50.0 / SIM_DT)
 
 
 @configclass
@@ -243,7 +245,7 @@ class BoxPushingEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
 
         # simulation settings
-        self.sim.dt = 0.01  # 100Hz
+        self.sim.dt = SIM_DT
 
         # general settings
         max_steps = 200
