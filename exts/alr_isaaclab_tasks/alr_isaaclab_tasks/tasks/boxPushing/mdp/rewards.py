@@ -47,7 +47,7 @@ def object_goal_position_distance(
     env: BoxPushingEnv,
     command_name: str,
     end_ep: bool = False,
-    end_ep_weight: float = 0.0,
+    end_ep_weight: float = 100.0,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
 ) -> torch.Tensor:
@@ -67,13 +67,15 @@ def object_goal_position_distance(
     if end_ep:
         #  compute only for terminated envs
         terminated = env.termination_manager.dones
-        distance += torch.where(terminated, distance, 0.0) * end_ep_weight
+        distance = torch.where(terminated, distance, 0.0) * end_ep_weight
     return distance
 
 
 def object_goal_orientation_distance(
     env: BoxPushingEnv,
     command_name: str,
+    end_ep: bool = False,
+    end_ep_weight: float = 100.0,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
 ) -> torch.Tensor:
@@ -87,6 +89,11 @@ def object_goal_orientation_distance(
     # compute orientation distance
     rot_dist = quat_error_magnitude(des_or_w, object.data.root_quat_w)
 
+    #  If there is a different weighting only to be computed at the end of an episode
+    if end_ep:
+        #  compute only for terminated envs
+        terminated = env.termination_manager.dones
+        rot_dist = torch.where(terminated, rot_dist, 0.0) * end_ep_weight
     return rot_dist
 
 
