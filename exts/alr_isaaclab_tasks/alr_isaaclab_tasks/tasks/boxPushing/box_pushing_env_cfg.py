@@ -153,7 +153,7 @@ class EventCfg:
 class DenseRewardCfg:
     """Reward terms for the MDP."""
 
-    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-1.0)
+    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-2.0)
 
     object_goal_position_distance = RewTerm(
         func=mdp.object_goal_position_distance,
@@ -164,7 +164,7 @@ class DenseRewardCfg:
     object_goal_orientation_distance = RewTerm(
         func=mdp.object_goal_orientation_distance,
         params={"command_name": "object_pose"},
-        weight=-2.0,
+        weight=-1.0 / torch.pi,
     )
 
     energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-5e-4)
