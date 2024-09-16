@@ -71,6 +71,9 @@ def main():
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
     # wrap for video recording
     if args_cli.video:
+
+        env.unwrapped.sim.set_camera_view((2.0, 2.0, 1.5), (0.0, 0.0, 0.0))
+
         video_kwargs = {
             "video_folder": os.path.join(log_dir, "videos"),
             "step_trigger": lambda step: step % args_cli.video_interval == 0,
