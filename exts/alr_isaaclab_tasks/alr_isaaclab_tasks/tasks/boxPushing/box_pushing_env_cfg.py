@@ -104,7 +104,6 @@ class ActionsCfg:
     """Action specifications for the MDP."""
 
     # will be set by agent env cfg
-    # body_joint_pos: mdp.JointPositionActionCfg = MISSING
     body_joint_effort: mdp.JointEffortActionCfg = MISSING
 
 
@@ -169,7 +168,7 @@ class DenseRewardCfg:
         weight=-2.0,
     )
 
-    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-5e-4)
+    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-1e-2)
 
     joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0)
 
