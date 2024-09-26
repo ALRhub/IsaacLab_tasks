@@ -65,17 +65,51 @@
             "justMyCode": false,
         },
         {
-            "name": "Python: Train (Fancy gym HP)",
+            "name": "Python: Train rsl_rl",
             "type": "debugpy",
             "request": "launch",
             "args": [
                 "--task",
                 "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
                 "--num_envs",
-                "160",
+                "480",
                 "--headless"
             ],
             "program": "${workspaceFolder}/scripts/rsl_rl/train.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Train skrl",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--max_iterations",
+                "10",
+                "--num_envs",
+                "480",
+                "--headless"
+            ],
+            "program": "${workspaceFolder}/scripts/skrl/train.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Eval rsl_rl",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "480",
+                "--headless"
+            ],
+            "program": "${workspaceFolder}/scripts/rsl_rl/eval.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
             "justMyCode": false

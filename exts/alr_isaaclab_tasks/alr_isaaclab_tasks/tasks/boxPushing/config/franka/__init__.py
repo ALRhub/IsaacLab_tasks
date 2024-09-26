@@ -13,7 +13,7 @@ from . import agents, joint_effort_env_cfg
 ##
 
 ##
-# Joint Position Control
+# Joint Effort Control
 ##
 
 # Dense reward
@@ -25,6 +25,7 @@ for reward_type in ["Dense", "TemporalSparse"]:
             kwargs={
                 "env_cfg_entry_point": getattr(joint_effort_env_cfg, f"FrankaBoxPushingEnvCfg_{reward_type}"),
                 "rsl_rl_cfg_entry_point": getattr(agents.rsl_rl_cfg, f"BoxPushingPPORunnerCfg_{rsl_rl_cfg_name}"),
+                "skrl_cfg_entry_point": f"{agents.__name__}:skrl_ppo_cfg.yaml",
             },
             disable_env_checker=True,
         )
