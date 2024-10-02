@@ -73,7 +73,7 @@ args_cli, hydra_args = parser.parse_known_args()
 
 def main():
 
-    agent_cfg = yaml.safe_load(open("fancy_gym/examples/sb3/sb3_ppo_cfg.yaml"))
+    agent_cfg = yaml.safe_load(open("/home/johann/hiwi/alr_tasks/exts/als_isaaclab_tasks/tasks/box_pushing/config/franka/agents/sb3_ppo_cfg.yaml"))
     agent_cfg = process_sb3_cfg(agent_cfg)
     policy_arch = agent_cfg.pop("policy")
     n_timesteps = agent_cfg.pop("n_timesteps")
