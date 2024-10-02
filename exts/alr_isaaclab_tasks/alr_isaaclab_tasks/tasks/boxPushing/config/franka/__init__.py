@@ -23,9 +23,14 @@ for reward_type in ["Dense", "TemporalSparse"]:
             id=f"Isaac-Box-Pushing-{reward_type}-{rsl_rl_cfg_name}-Franka-v0",
             entry_point="alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env:BoxPushingEnv",
             kwargs={
-                "env_cfg_entry_point": getattr(joint_effort_env_cfg, f"FrankaBoxPushingEnvCfg_{reward_type}"),
-                "rsl_rl_cfg_entry_point": getattr(agents.rsl_rl_cfg, f"BoxPushingPPORunnerCfg_{rsl_rl_cfg_name}"),
+                "env_cfg_entry_point": getattr(
+                    joint_effort_env_cfg, f"FrankaBoxPushingEnvCfg_{reward_type}"
+                ),
+                "rsl_rl_cfg_entry_point": getattr(
+                    agents.rsl_rl_cfg, f"BoxPushingPPORunnerCfg_{rsl_rl_cfg_name}"
+                ),
                 "skrl_cfg_entry_point": f"{agents.__name__}:skrl_ppo_cfg.yaml",
+                "sb3_cfg_entry_point": f"{agents.__name__}:sb3_ppo_cfg.yaml",
             },
             disable_env_checker=True,
         )

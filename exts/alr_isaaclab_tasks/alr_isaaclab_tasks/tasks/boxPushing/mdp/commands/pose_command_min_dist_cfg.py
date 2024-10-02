@@ -24,6 +24,3 @@ class UniformPoseWithMinDistCommandCfg(UniformPoseCommandCfg):
 
     min_dist: float = 0.0
     """Minimal distance to the box to respect during the sampling"""
-
-    max_iters: int = 10
-    """Max amount of time the positions are resampled until they are farther away to the box than the given `min_dist`"""

@@ -24,23 +24,6 @@ if TYPE_CHECKING:
 
 
 class UniformPoseWithMinDistCommand(UniformPoseCommand):
-    """Command generator for generating pose commands uniformly.
-
-    The command generator generates poses by sampling positions uniformly within specified
-    regions in cartesian space. For orientation, it samples uniformly the euler angles
-    (roll-pitch-yaw) and converts them into quaternion representation (w, x, y, z).
-
-    The position and orientation commands are generated in the base frame of the robot, and not the
-    simulation world frame. This means that users need to handle the transformation from the
-    base frame to the simulation world frame themselves.
-
-    .. caution::
-
-        Sampling orientations uniformly is not strictly the same as sampling euler angles uniformly.
-        This is because rotations are defined by 3D non-Euclidean space, and the mapping
-        from euler angles to rotations is not one-to-one.
-
-    """
 
     cfg: UniformPoseWithMinDistCommandCfg
     """Configuration for the command generator."""
@@ -58,8 +41,6 @@ class UniformPoseWithMinDistCommand(UniformPoseCommand):
         self.box: RigidObject = env.scene[cfg.box_name]
 
         self.min_dist = cfg.min_dist
-
-        self.max_iters = cfg.max_iters
 
     def __str__(self) -> str:
         msg = "UniformPoseCommand:\n"
@@ -94,7 +75,7 @@ class UniformPoseWithMinDistCommand(UniformPoseCommand):
         self.pose_command_b[env_ids, 1] = r.uniform_(*self.cfg.ranges.pos_y)
         self.pose_command_b[env_ids, 2] = r.uniform_(*self.cfg.ranges.pos_z)
 
-        for _ in range(self.max_iters):
+        while True:
             distances = torch.linalg.norm(self.pose_command_b[env_ids, :3] - box_position_b[env_ids, :], dim=1)
             mask = distances >= self.min_dist
 
