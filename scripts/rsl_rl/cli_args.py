@@ -54,6 +54,8 @@ def parse_rsl_rl_cfg(task_name: str, args_cli: argparse.Namespace) -> RslRlOnPol
     # override the default configuration with CLI arguments
     if args_cli.seed is not None:
         rslrl_cfg.seed = args_cli.seed
+    if args_cli.gamma is not None:
+        rslrl_cfg.algorithm.gamma = args_cli.gamma
     if args_cli.resume is not None:
         rslrl_cfg.resume = args_cli.resume
     if args_cli.load_run is not None:
