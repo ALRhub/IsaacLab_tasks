@@ -21,17 +21,23 @@ from omni.isaac.lab.managers import ObservationTermCfg as ObsTerm
 from omni.isaac.lab.managers import RewardTermCfg as RewTerm
 from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
 from omni.isaac.lab.managers import SceneEntityCfg
-from omni.isaac.lab.envs.mdp.commands import UniformPoseCommandCfg
 from omni.isaac.lab.scene import InteractiveSceneCfg
-from omni.isaac.lab.sensors.frame_transformer.frame_transformer_cfg import FrameTransformerCfg
-from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
+from omni.isaac.lab.sensors.frame_transformer.frame_transformer_cfg import (
+    FrameTransformerCfg,
+)
+from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import (
+    GroundPlaneCfg,
+    UsdFileCfg,
+)
 from omni.isaac.lab.utils import configclass
 from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
 
-from alr_isaaclab_tasks.tasks.boxPushing.mdp.commands.pose_command_min_dist_cfg import UniformPoseWithMinDistCommandCfg
+from alr_isaaclab_tasks.tasks.boxPushing.mdp.commands.pose_command_min_dist_cfg import (
+    UniformPoseWithMinDistCommandCfg,
+)
 from alr_isaaclab_tasks.tasks.boxPushing import mdp
 
-SIM_DT = 0.01  # 100Hz
+ENV_DT = 0.01  # 100Hz / decimation
 
 ##
 # Scene definition
@@ -55,7 +61,9 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
     # Table
     table = AssetBaseCfg(
         prim_path="{ENV_REGEX_NS}/Table",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0], rot=[0.707, 0, 0, 0.707]),
+        init_state=AssetBaseCfg.InitialStateCfg(
+            pos=[0.5, 0, 0], rot=[0.707, 0, 0, 0.707]
+        ),
         spawn=UsdFileCfg(
             usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd",
             scale=(1.5, 1.0, 1.0),
@@ -85,12 +93,14 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 class CommandsCfg:
     """Command terms for the MDP."""
 
-    object_pose = UniformPoseCommandCfg(
+    object_pose = UniformPoseWithMinDistCommandCfg(
         asset_name="robot",
-        body_name=MISSING,
+        min_dist=0.3,
+        body_name=MISSING,  # will be set by agent env cfg
+        box_name="object",
         resampling_time_range=(10.0, 10.0),
         debug_vis=True,
-        ranges=UniformPoseCommandCfg.Ranges(
+        ranges=UniformPoseWithMinDistCommandCfg.Ranges(
             pos_x=(0.3, 0.6),
             pos_y=(-0.45, 0.45),
             pos_z=(0.007, 0.007),
@@ -120,7 +130,9 @@ class ObservationsCfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_pose = ObsTerm(func=mdp.object_pose_in_robot_root_frame)
-        target_object_pose = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
+        target_object_pose = ObsTerm(
+            func=mdp.generated_commands, params={"command_name": "object_pose"}
+        )
 
         def __post_init__(self):
             self.enable_corruption = True
@@ -140,7 +152,12 @@ class EventCfg:
         func=mdp.sample_box_poses,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.15, 0.15), "y": (-0.45, 0.45), "z": (0.0, 0.0), "yaw": (0.0, 2 * torch.pi)},
+            "pose_range": {
+                "x": (-0.15, 0.15),
+                "y": (-0.45, 0.45),
+                "z": (0.0, 0.0),
+                "yaw": (0.0, 2 * torch.pi),
+            },
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
     )
@@ -155,56 +172,76 @@ class EventCfg:
 class DenseRewardCfg:
     """Reward terms for the MDP."""
 
-    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-2.0 / SIM_DT)
+    object_ee_distance = RewTerm(
+        func=mdp.object_ee_distance, weight=-2.0 / (ENV_DT * 2)
+    )
 
     object_goal_position_distance = RewTerm(
         func=mdp.object_goal_position_distance,
         params={"command_name": "object_pose"},
-        weight=-3.5 / SIM_DT,
+        weight=-3.5 / (ENV_DT * 2),
     )
 
     object_goal_orientation_distance = RewTerm(
         func=mdp.object_goal_orientation_distance,
         params={"command_name": "object_pose"},
-        weight=-1.0 / torch.pi / SIM_DT,
+        weight=-1.0 / torch.pi / (ENV_DT * 2),
     )
 
-    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-5e-4 / SIM_DT)
+    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-5e-4 / (ENV_DT * 2))
 
-    joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0 / SIM_DT)
+    joint_position_limit = RewTerm(
+        func=mdp.joint_pos_limits_bp, weight=-1.0 / (ENV_DT * 2)
+    )
 
-    joint_velocity_limit = RewTerm(func=mdp.joint_vel_limits_bp, params={"soft_ratio": 1.0}, weight=-1.0 / SIM_DT)
+    joint_velocity_limit = RewTerm(
+        func=mdp.joint_vel_limits_bp,
+        params={"soft_ratio": 1.0},
+        weight=-1.0 / (ENV_DT * 2),
+    )
 
-    rod_inclined_angle = RewTerm(func=mdp.rod_inclined_angle, weight=-1.0 / SIM_DT)
+    rod_inclined_angle = RewTerm(
+        func=mdp.rod_inclined_angle, weight=-1.0 / (ENV_DT * 2)
+    )
 
 
 @configclass
-class TemporalSparseRewardCfg:  # TODO set weights
+class TemporalSparseRewardCfg:
     """Reward terms for the MDP."""
 
-    object_ee_distance = RewTerm(func=mdp.object_ee_distance, weight=-2.0 / SIM_DT)
+    object_ee_distance = RewTerm(
+        func=mdp.object_ee_distance, weight=-2.0 / (ENV_DT * 2)
+    )
 
     object_goal_position_distance = RewTerm(
         func=mdp.object_goal_position_distance,
         params={"end_ep": True, "end_ep_weight": 100.0, "command_name": "object_pose"},
-        weight=-3.5 / SIM_DT,
+        weight=-3.5 / (ENV_DT * 2),
     )
 
     object_goal_orientation_distance = RewTerm(
         func=mdp.object_goal_orientation_distance,
         params={"end_ep": True, "end_ep_weight": 100.0, "command_name": "object_pose"},
-        weight=-1.0 / torch.pi / SIM_DT,
+        weight=-1.0 / torch.pi / (ENV_DT * 2),
     )
 
-    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-0.02 / SIM_DT)
+    energy_cost = RewTerm(func=mdp.action_scaled_l2, weight=-0.02 / (ENV_DT * 2))
 
-    joint_position_limit = RewTerm(func=mdp.joint_pos_limits_bp, weight=-1.0 / SIM_DT)
+    joint_position_limit = RewTerm(
+        func=mdp.joint_pos_limits_bp, weight=-1.0 / (ENV_DT * 2)
+    )
 
-    joint_velocity_limit = RewTerm(func=mdp.joint_vel_limits_bp, params={"soft_ratio": 1.0}, weight=-1.0 / SIM_DT)
+    joint_velocity_limit = RewTerm(
+        func=mdp.joint_vel_limits_bp,
+        params={"soft_ratio": 1.0},
+        weight=-1.0 / (ENV_DT * 2),
+    )
 
-    rod_inclined_angle = RewTerm(func=mdp.rod_inclined_angle, weight=-1.0 / SIM_DT)
+    rod_inclined_angle = RewTerm(
+        func=mdp.rod_inclined_angle, weight=-1.0 / (ENV_DT * 2)
+    )
 
-    end_ep_vel = RewTerm(func=mdp.end_ep_vel, weight=-50.0 / SIM_DT)
+    end_ep_vel = RewTerm(func=mdp.end_ep_vel, weight=-50.0 / (ENV_DT * 2))
 
 
 @configclass
@@ -214,7 +251,12 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
     success = DoneTerm(
-        func=mdp.is_success, params={"command_name": "object_pose", "limit_pose_dist": 0.05, "limit_or_dist": 0.5}
+        func=mdp.is_success,
+        params={
+            "command_name": "object_pose",
+            "limit_pose_dist": 0.05,
+            "limit_or_dist": 0.5,
+        },
     )
 
 
@@ -228,7 +270,9 @@ class BoxPushingEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the lifting environment."""
 
     # Scene settings
-    scene: ObjectTableSceneCfg = ObjectTableSceneCfg(num_envs=4096, env_spacing=2.5, replicate_physics=False)
+    scene: ObjectTableSceneCfg = ObjectTableSceneCfg(
+        num_envs=4096, env_spacing=2.5, replicate_physics=False
+    )
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
@@ -245,7 +289,7 @@ class BoxPushingEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
 
         # simulation settings
-        self.sim.dt = SIM_DT
+        self.sim.dt = ENV_DT
 
         # general settings
         max_steps = 200

@@ -24,7 +24,9 @@ from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import (
 # Pre-defined configs
 ##
 from omni.isaac.lab.markers.config import FRAME_MARKER_CFG  # isort: skip
-from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import FRANKA_PANDA_ONLY_TORQUE as FRANKA_CONFIG  # isort: skip
+from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import (
+    FRANKA_PANDA_ONLY_TORQUE as FRANKA_CONFIG,
+)  # isort: skip
 
 
 @configclass
@@ -38,7 +40,10 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
 
         # Set actions for the specific robot type (franka)
         self.actions.body_joint_effort = mdp.JointEffortActionCfg(
-            asset_name="robot", joint_names=["panda_joint.*"], scale=10.0, debug_vis=True
+            asset_name="robot",
+            joint_names=["panda_joint.*"],
+            scale=10.0,
+            debug_vis=True,
         )
         self.commands.object_pose.body_name = "panda_hand"
 
@@ -50,7 +55,9 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
                 rot=(1, 0, 0, 0),
             ),
             spawn=UsdFileCfg(
-                usd_path=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../assets/box.usda"),
+                usd_path=os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)), "../../assets/box.usda"
+                ),
                 scale=(0.001, 0.001, 0.001),
                 rigid_props=RigidBodyPropertiesCfg(
                     solver_position_iteration_count=8,

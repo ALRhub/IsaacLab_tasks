@@ -21,7 +21,12 @@ if TYPE_CHECKING:
 
 # TODO resolve import
 def action_scaled_l2(env: BoxPushingEnv) -> torch.Tensor:
-    return torch.sum(torch.square(env.action_manager.action * env.cfg.actions.body_joint_effort.scale), dim=1)
+    return torch.sum(
+        torch.square(
+            env.action_manager.action * env.cfg.actions.body_joint_effort.scale
+        ),
+        dim=1,
+    )
 
 
 def object_ee_distance(
@@ -61,7 +66,7 @@ def object_goal_position_distance(
         robot.data.root_pos_w, robot.data.root_quat_w, command[:, :3], command[:, 3:]
     )
     # distance of the object to the target: (num_envs,)
-    distance = torch.linalg.norm(des_pos_w - object.data.root_pos_w, dim=1)
+    distance = torch.linalg.norm(object.data.root_pos_w - des_pos_w, dim=1)
 
     #  If there is a different weighting only to be computed at the end of an episode
     if end_ep:
@@ -98,7 +103,9 @@ def object_goal_orientation_distance(
 
 
 # TODO somehow asset_cfg.joint_ids is None so has to be replaced with :
-def joint_pos_limits_bp(env: BoxPushingEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+def joint_pos_limits_bp(
+    env: BoxPushingEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
     """Penalize joint positions if they cross the soft limits.
 
     This is computed as a sum of the absolute value of the difference between the joint position and the soft limits.
@@ -106,8 +113,12 @@ def joint_pos_limits_bp(env: BoxPushingEnv, asset_cfg: SceneEntityCfg = SceneEnt
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     # compute out of limits constraints
-    out_of_limits = -(asset.data.joint_pos[:, :] - asset.data.soft_joint_pos_limits[:, :, 0]).clip(max=0.0)
-    out_of_limits += (asset.data.joint_pos[:, :] - asset.data.soft_joint_pos_limits[:, :, 1]).clip(min=0.0)
+    out_of_limits = -(
+        asset.data.joint_pos[:, :] - asset.data.soft_joint_pos_limits[:, :, 0]
+    ).clip(max=0.0)
+    out_of_limits += (
+        asset.data.joint_pos[:, :] - asset.data.soft_joint_pos_limits[:, :, 1]
+    ).clip(min=0.0)
     return torch.sum(out_of_limits, dim=1)
 
 
@@ -143,9 +154,13 @@ def joint_vel_limits_bp(
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     # max joint velocities
-    arm_dof_vel_max = convert_to_torch([2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100], device=env.device)
+    arm_dof_vel_max = convert_to_torch(
+        [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100], device=env.device
+    )
     # compute out of limits constraints
-    out_of_limits = torch.abs(asset.data.joint_vel[:, :7]) - arm_dof_vel_max * soft_ratio
+    out_of_limits = (
+        torch.abs(asset.data.joint_vel[:, :7]) - arm_dof_vel_max * soft_ratio
+    )
     # clip to max error = 1 rad/s per joint to avoid huge penalties
     out_of_limits = out_of_limits.clip_(min=0.0, max=1.0)
     return torch.sum(out_of_limits, dim=1)
@@ -155,7 +170,9 @@ def rod_inclined_angle(
     env: BoxPushingEnv,
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ) -> torch.Tensor:
-    desired_rod_quat = convert_to_torch([0.0, 1.0, 0.0, 0.0], device=env.device).repeat(env.num_envs, 1)
+    desired_rod_quat = convert_to_torch([0.0, 1.0, 0.0, 0.0], device=env.device).repeat(
+        env.num_envs, 1
+    )
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
     ee_quat = ee_frame.data.target_quat_w[..., 0, :]
     rot_dist = quat_error_magnitude(desired_rod_quat, ee_quat)
