@@ -25,14 +25,18 @@ from omni.isaac.lab.assets.articulation import ArticulationCfg
 
 FRANKA_PANDA_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=os.path.join(os.path.dirname(os.path.realpath(__file__)), "franka.usda"),
+        usd_path=os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "franka.usda"
+        ),
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=True,
             max_depenetration_velocity=5.0,
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-            enabled_self_collisions=True, solver_position_iteration_count=8, solver_velocity_iteration_count=0
+            enabled_self_collisions=True,
+            solver_position_iteration_count=8,
+            solver_velocity_iteration_count=0,
         ),
         # collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     ),
@@ -92,3 +96,8 @@ FRANKA_PANDA_ONLY_TORQUE.actuators["panda_shoulder"].stiffness = 0
 FRANKA_PANDA_ONLY_TORQUE.actuators["panda_shoulder"].damping = 0
 FRANKA_PANDA_ONLY_TORQUE.actuators["panda_forearm"].stiffness = 0
 FRANKA_PANDA_ONLY_TORQUE.actuators["panda_forearm"].damping = 0
+
+FRANKA_PANDA_FANCY_GYM = FRANKA_PANDA_ONLY_TORQUE.copy()
+FRANKA_PANDA_FANCY_GYM.spawn.usd_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "fg", "panda_rod.usda"
+)

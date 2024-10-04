@@ -1,0 +1,855 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary cameraSettings = {
+            dictionary Front = {
+                double3 position = (50000.18140525073, -1.1102270526308792e-11, 0)
+                double radius = 500
+            }
+            dictionary Perspective = {
+                double3 position = (1.2676858087595393, 0.8065597406539762, 1.2537615010526741)
+                double3 target = (-0.3874192770157301, -0.1665480365901867, 0.6123160159960135)
+            }
+            dictionary Right = {
+                double3 position = (0, -50000.12939199805, -1.1102258977046653e-11)
+                double radius = 500
+            }
+            dictionary Top = {
+                double3 position = (0, 0, 50001.11466311893)
+                double radius = 500
+            }
+            string boundCamera = "/OmniverseKit_Persp"
+        }
+        dictionary navmeshSettings = {
+            double agentHeight = 180
+            double agentRadius = 20
+            bool excludeRigidBodies = 1
+            int ver = 1
+            double voxelCeiling = 460
+        }
+        dictionary omni_layer = {
+            string authoring_layer = "./panda_rod.usda"
+            dictionary muteness = {
+            }
+        }
+        dictionary renderSettings = {
+            float3 "rtx:debugView:pixelDebug:textColor" = (0, 1e18, 0)
+            float3 "rtx:fog:fogColor" = (0.75, 0.75, 0.75)
+            float3 "rtx:index:regionOfInterestMax" = (0, 0, 0)
+            float3 "rtx:index:regionOfInterestMin" = (0, 0, 0)
+            float3 "rtx:iray:environment_dome_ground_position" = (0, 0, 0)
+            float3 "rtx:iray:environment_dome_ground_reflectivity" = (0, 0, 0)
+            float3 "rtx:iray:environment_dome_rotation_axis" = (3.4028235e38, 3.4028235e38, 3.4028235e38)
+            float3 "rtx:post:backgroundZeroAlpha:backgroundDefaultColor" = (0, 0, 0)
+            float3 "rtx:post:colorcorr:contrast" = (1, 1, 1)
+            float3 "rtx:post:colorcorr:gain" = (1, 1, 1)
+            float3 "rtx:post:colorcorr:gamma" = (1, 1, 1)
+            float3 "rtx:post:colorcorr:offset" = (0, 0, 0)
+            float3 "rtx:post:colorcorr:saturation" = (1, 1, 1)
+            float3 "rtx:post:colorgrad:blackpoint" = (0, 0, 0)
+            float3 "rtx:post:colorgrad:contrast" = (1, 1, 1)
+            float3 "rtx:post:colorgrad:gain" = (1, 1, 1)
+            float3 "rtx:post:colorgrad:gamma" = (1, 1, 1)
+            float3 "rtx:post:colorgrad:lift" = (0, 0, 0)
+            float3 "rtx:post:colorgrad:multiply" = (1, 1, 1)
+            float3 "rtx:post:colorgrad:offset" = (0, 0, 0)
+            float3 "rtx:post:colorgrad:whitepoint" = (1, 1, 1)
+            float3 "rtx:post:lensDistortion:lensFocalLengthArray" = (10, 30, 50)
+            float3 "rtx:post:lensFlares:anisoFlareFalloffX" = (450, 475, 500)
+            float3 "rtx:post:lensFlares:anisoFlareFalloffY" = (10, 10, 10)
+            float3 "rtx:post:lensFlares:cutoffPoint" = (2, 2, 2)
+            float3 "rtx:post:lensFlares:haloFlareFalloff" = (10, 10, 10)
+            float3 "rtx:post:lensFlares:haloFlareRadius" = (75, 75, 75)
+            float3 "rtx:post:lensFlares:isotropicFlareFalloff" = (50, 50, 50)
+            float3 "rtx:post:tonemap:whitepoint" = (1, 1, 1)
+            float3 "rtx:raytracing:inscattering:singleScatteringAlbedo" = (0.9, 0.9, 0.9)
+            float3 "rtx:raytracing:inscattering:transmittanceColor" = (0.5, 0.5, 0.5)
+            float3 "rtx:sceneDb:ambientLightColor" = (0.1, 0.1, 0.1)
+        }
+    }
+    defaultPrim = "panda_link0"
+    metersPerUnit = 1
+    timeCodesPerSecond = 60
+    upAxis = "Z"
+)
+
+def Xform "panda_link0" (
+    prepend apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
+)
+{
+    bool physxArticulation:enabledSelfCollisions = 1
+
+    def Xform "panda_link0" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0291898, -0.000879465, 0.0566032)
+        float3 physics:diagonalInertia = (0.0126801, 0.0117603, 0.00856656)
+        prepend rel physics:filteredPairs = </panda_link0/panda_link1>
+        float physics:mass = 3.01399
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link0/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link0/visuals>
+        )
+        {
+        }
+    }
+
+    def "joints"
+    {
+        def PhysicsFixedJoint "rootJoint_panda_link0"
+        {
+            rel physics:body1 = </panda_link0/panda_link0>
+        }
+
+        def PhysicsRevoluteJoint "panda_joint1" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 0
+            float drive:X:physics:maxForce = 87
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_link0>
+            rel physics:body1 = </panda_link0/panda_link1>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0.333)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.7071068, 0, -0.7071068, 0)
+            quatf physics:localRot1 = (0.7071068, 0, -0.7071068, 0)
+            float physics:lowerLimit = -170.0023
+            float physics:upperLimit = 170.0023
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 0
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsRevoluteJoint "panda_joint2" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 0
+            float drive:X:physics:maxForce = 87
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_link1>
+            rel physics:body1 = </panda_link0/panda_link2>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.50000006, -0.50000006, -0.50000006, 0.50000006)
+            quatf physics:localRot1 = (0.7071069, 0, -0.7071069, 0)
+            float physics:lowerLimit = -105.000244
+            float physics:upperLimit = 105.000244
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 0
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsRevoluteJoint "panda_joint3" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 0
+            float drive:X:physics:maxForce = 87
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_link2>
+            rel physics:body1 = </panda_link0/panda_link3>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, -0.31600013, -3.5527137e-15)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.5000001, 0.5000001, -0.5000001, -0.5000001)
+            quatf physics:localRot1 = (0.70710695, 0, -0.70710695, 0)
+            float physics:lowerLimit = -170.0023
+            float physics:upperLimit = 170.0023
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 0
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsRevoluteJoint "panda_joint4" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 0
+            float drive:X:physics:maxForce = 87
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_link3>
+            rel physics:body1 = </panda_link0/panda_link4>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0.08250008, 0, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.5000002, 0.5000002, -0.5000002, -0.5000002)
+            quatf physics:localRot1 = (0.70710707, 0, -0.70710707, 0)
+            float physics:lowerLimit = -180.00041
+            float physics:upperLimit = 5.0019217
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 0
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsRevoluteJoint "panda_joint5" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 0
+            float drive:X:physics:maxForce = 12
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_link4>
+            rel physics:body1 = </panda_link0/panda_link5>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (-0.08250011, 0.38400036, 2.842171e-14)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.50000024, -0.50000024, -0.50000024, 0.50000024)
+            quatf physics:localRot1 = (0.7071072, 0, -0.7071072, 0)
+            float physics:lowerLimit = -170.0023
+            float physics:upperLimit = 170.0023
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 0
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsRevoluteJoint "panda_joint6" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 0
+            float drive:X:physics:maxForce = 12
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_link5>
+            rel physics:body1 = </panda_link0/panda_link6>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.5000003, 0.5000003, -0.5000003, -0.5000003)
+            quatf physics:localRot1 = (0.70710725, 0, -0.70710725, 0)
+            float physics:lowerLimit = -5.0019217
+            float physics:upperLimit = 219.00165
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 0
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsRevoluteJoint "panda_joint7" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 0
+            float drive:X:physics:maxForce = 12
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_link6>
+            rel physics:body1 = </panda_link0/panda_link7>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0.088000216, 0, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.50000036, 0.50000036, -0.50000036, -0.50000036)
+            quatf physics:localRot1 = (0.7071073, 0, -0.7071073, 0)
+            float physics:lowerLimit = -170.0023
+            float physics:upperLimit = 170.0023
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 0
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsFixedJoint "panda_link8"
+        {
+            rel physics:body0 = </panda_link0/panda_link7>
+            rel physics:body1 = </panda_link0/panda_link8>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0.107)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsFixedJoint "panda_hand"
+        {
+            rel physics:body0 = </panda_link0/panda_link8>
+            rel physics:body1 = </panda_link0/panda_hand>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.92387974, 0, 0, -0.38268292)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsFixedJoint "push_rod"
+        {
+            rel physics:body0 = </panda_link0/panda_hand>
+            rel physics:body1 = </panda_link0/push_rod>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsPrismaticJoint "panda_finger_joint1" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 10
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_hand>
+            rel physics:body1 = </panda_link0/panda_leftfinger>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0.058399975)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.7071074, 0, 0, 0.7071074)
+            quatf physics:localRot1 = (0.7071074, 0, 0, 0.7071074)
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0.04
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 10
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsFixedJoint "finger_joint1_tip"
+        {
+            rel physics:body0 = </panda_link0/panda_leftfinger>
+            rel physics:body1 = </panda_link0/finger_joint1_tip>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0.0085, 0.056)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsPrismaticJoint "panda_finger_joint2" (
+            prepend apiSchemas = ["PhysxJointAPI", "PhysxLimitAPI:X", "PhysicsDriveAPI:X"]
+        )
+        {
+            float drive:X:physics:damping = 10
+            float drive:X:physics:stiffness = 0
+            uniform token drive:X:physics:type = "force"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </panda_link0/panda_hand>
+            rel physics:body1 = </panda_link0/panda_rightfinger>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, 0, 0.058399975)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.7071074, 0, 0, -0.7071074)
+            quatf physics:localRot1 = (0.7071074, 0, 0, -0.7071074)
+            float physics:lowerLimit = 0
+            float physics:upperLimit = 0.04
+            float physxJoint:armature = 0
+            float physxLimit:X:damping = 10
+            float physxLimit:X:stiffness = 0
+        }
+
+        def PhysicsFixedJoint "finger_joint2_tip"
+        {
+            rel physics:body0 = </panda_link0/panda_rightfinger>
+            rel physics:body1 = </panda_link0/finger_joint2_tip>
+            float physics:breakForce = 3.4028235e38
+            float physics:breakTorque = 3.4028235e38
+            point3f physics:localPos0 = (0, -0.0085, 0.056)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+    }
+
+    def Xform "panda_link1" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.000011399, -0.0312655, -0.0693733)
+        float3 physics:diagonalInertia = (0.0164224, 0.0153969, 0.00546286)
+        prepend rel physics:filteredPairs = [
+            </panda_link0/panda_link0>,
+            </panda_link0/panda_link2>,
+        ]
+        float physics:mass = 2.77281
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0.3330000042915344, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link1/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link1/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_link2" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0000131766, -0.0703216, 0.0311782)
+        float3 physics:diagonalInertia = (0.016787, 0.0157415, 0.00553027)
+        prepend rel physics:filteredPairs = [
+            </panda_link0/panda_link1>,
+            </panda_link0/panda_link3>,
+        ]
+        float physics:mass = 2.7996
+        matrix4d xformOp:transform = ( (1, 0, -0, 0), (-0, -1.3435885648505064e-7, -1.0000001343588565, 0), (0, 1.0000001343588565, -1.3435885648505064e-7, 0), (0, 0, 0.3330000042915344, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link2/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link2/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_link3" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0443483, 0.0249283, -0.03813)
+        float3 physics:diagonalInertia = (0.00915257, 0.00896477, 0.00384742)
+        prepend rel physics:filteredPairs = [
+            </panda_link0/panda_link2>,
+            </panda_link0/panda_link4>,
+        ]
+        float physics:mass = 2.14603
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, -3.767013723177115e-8, 0.6490000486373901, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link3/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link3/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_link4" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0385503, 0.0395256, 0.0247162)
+        float3 physics:diagonalInertia = (0.00946899, 0.00928491, 0.00396694)
+        prepend rel physics:filteredPairs = [
+            </panda_link0/panda_link3>,
+            </panda_link0/panda_link5>,
+        ]
+        float physics:mass = 2.18807
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, -3.029462689596585e-7, 1.000000302946269, 0), (0, -1.000000302946269, -3.029462689596585e-7, 0), (0.08250004053115845, -3.767013723177115e-8, 0.6490000486373901, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link4/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link4/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_link5" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0000636776, 0.0384124, -0.10997)
+        float3 physics:diagonalInertia = (0.0278873, 0.0268823, 0.00569569)
+        prepend rel physics:filteredPairs = [
+            </panda_link0/panda_link4>,
+            </panda_link0/panda_link6>,
+        ]
+        float physics:mass = 3.19545
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-1.4901161193847656e-8, 9.965896197172697e-8, 1.0330002307891846, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link5/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link5/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_link6" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0510023, 0.00693267, 0.00616899)
+        float3 physics:diagonalInertia = (0.00412168, 0.0033698, 0.00213304)
+        prepend rel physics:filteredPairs = [
+            </panda_link0/panda_link5>,
+            </panda_link0/panda_link7>,
+        ]
+        float physics:mass = 1.35761
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, -6.401211365414383e-7, 1.0000006401211365, 0), (0, -1.0000006401211365, -6.401211365414383e-7, 0), (-1.4901161193847656e-8, 9.965896197172697e-8, 1.0330002307891846, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link6/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link6/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_link7" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0103614, 0.0103596, 0.0791078)
+        float3 physics:diagonalInertia = (0.000637671, 0.000528056, 0.000279577)
+        prepend rel physics:filteredPairs = </panda_link0/panda_link6>
+        float physics:mass = 0.417345
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, -1.0000014305117304, 0, 0), (0, 0, -1.0000014305117304, 0), (0.0880000963807106, 9.965896197172697e-8, 1.0330002307891846, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link7/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_link7/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_link8" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0, 0, 0)
+        float3 physics:diagonalInertia = (0.1, 0.1, 0.1)
+        float physics:mass = 0.1
+        matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, -1.0000014305117304, 0, 0), (0, 0, -1.0000014305117304, 0), (0.0880000963807106, 9.965896197172697e-8, 0.9260002374649048, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+    }
+
+    def Xform "panda_hand" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.00000276618, -0.00061547, 0.0239295)
+        float3 physics:diagonalInertia = (0.00227632, 0.00206087, 0.000456542)
+        float physics:mass = 0.670782
+        matrix4d xformOp:transform = ( (0.707107338145617, 0.707106543405331, 0, 0), (0.707106543405331, -0.7071088792768023, 0, 0), (0, 0, -1.0000015411311853, 0), (0.0880000963807106, 9.965896197172697e-8, 0.9260002374649048, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_hand/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_hand/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "push_rod" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        float physics:density = 0
+        matrix4d xformOp:transform = ( (0.707107338145617, 0.707106543405331, 0, 0), (0.707106543405331, -0.7071088792768023, 0, 0), (0, 0, -1.0000015411311853, 0), (0.0880000963807106, 9.965896197172697e-8, 0.9260002374649048, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/push_rod/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/push_rod/visuals>
+        )
+        {
+        }
+
+        def "sites"
+        {
+            def Cube "rod_tip" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.01, -0.01, -0.01), (0.01, 0.01, 0.01)]
+                rel material:binding = </panda_link0/push_rod/sites/Looks/material_rgba>
+                matrix4d xformOp:transform = ( (0.009999999776482582, 0, 0, 0), (0, 0.009999999776482582, 0, 0), (0, 0, 0.009999999776482582, 0), (0, 0, 0.20000000298023224, 1) )
+                uniform token[] xformOpOrder = ["xformOp:transform"]
+            }
+
+            def Scope "Looks"
+            {
+                def Material "material_rgba"
+                {
+                    token outputs:mdl:displacement.connect = </panda_link0/push_rod/sites/Looks/material_rgba/Shader.outputs:out>
+                    token outputs:mdl:surface.connect = </panda_link0/push_rod/sites/Looks/material_rgba/Shader.outputs:out>
+                    token outputs:mdl:volume.connect = </panda_link0/push_rod/sites/Looks/material_rgba/Shader.outputs:out>
+
+                    def Shader "Shader"
+                    {
+                        uniform token info:id = "UsdPreviewSurface"
+                        uniform token info:implementationSource = "sourceAsset"
+                        uniform asset info:mdl:sourceAsset = @OmniPBR.mdl@
+                        uniform token info:mdl:sourceAsset:subIdentifier = "OmniPBR"
+                        color3f inputs:diffuse_color_constant = (0, 0, 1)
+                        token outputs:out
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "panda_leftfinger" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (-0.0000242335, 0.0119585, 0.0237816)
+        float3 physics:diagonalInertia = (0.00000569661, 0.00000556035, 0.00000155183)
+        float physics:mass = 0.0218754
+        matrix4d xformOp:transform = ( (0.707107338145617, 0.707106543405331, 0, 0), (0.707106543405331, -0.7071088792768023, 0, 0), (0, 0, -1.0000015411311853, 0), (0.0880000963807106, 9.965896197172697e-8, 0.8676002621650696, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_leftfinger/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_leftfinger/visuals>
+        )
+        {
+        }
+
+        def "sites"
+        {
+            def Cube "panda_leftfinger_site" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.012, -0.015, -0.012), (0.012, 0.015, 0.012)]
+                rel material:binding = </panda_link0/panda_leftfinger/sites/Looks/material_rgba>
+                matrix4d xformOp:transform = ( (0.012000000104308128, 0, 0, 0), (0, 0.014999999664723873, 0, 0), (0, 0, 0.012000000104308128, 0), (0, 0.012000000104308128, 0.04500000178813934, 1) )
+                uniform token[] xformOpOrder = ["xformOp:transform"]
+            }
+
+            def Scope "Looks"
+            {
+                def Material "material_rgba"
+                {
+                    token outputs:mdl:displacement.connect = </panda_link0/panda_leftfinger/sites/Looks/material_rgba/Shader.outputs:out>
+                    token outputs:mdl:surface.connect = </panda_link0/panda_leftfinger/sites/Looks/material_rgba/Shader.outputs:out>
+                    token outputs:mdl:volume.connect = </panda_link0/panda_leftfinger/sites/Looks/material_rgba/Shader.outputs:out>
+
+                    def Shader "Shader"
+                    {
+                        uniform token info:id = "UsdPreviewSurface"
+                        uniform token info:implementationSource = "sourceAsset"
+                        uniform asset info:mdl:sourceAsset = @OmniPBR.mdl@
+                        uniform token info:mdl:sourceAsset:subIdentifier = "OmniPBR"
+                        color3f inputs:diffuse_color_constant = (0, 0, 1)
+                        token outputs:out
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "finger_joint1_tip" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0, 0, 0)
+        float3 physics:diagonalInertia = (0.01, 0.01, 0.01)
+        float physics:mass = 0.01
+        matrix4d xformOp:transform = ( (0.707107338145617, 0.707106543405331, 0, 0), (0.707106543405331, -0.7071088792768023, 0, 0), (0, 0, -1.0000015411311853, 0), (0.09401050209999084, -0.006010313052684069, 0.8116002678871155, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/finger_joint1_tip/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/finger_joint1_tip/visuals>
+        )
+        {
+        }
+    }
+
+    def Xform "panda_rightfinger" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0.0000242335, -0.0119585, 0.0237816)
+        float3 physics:diagonalInertia = (0.00000569661, 0.00000556035, 0.00000155183)
+        float physics:mass = 0.0218754
+        matrix4d xformOp:transform = ( (0.707107338145617, 0.707106543405331, 0, 0), (0.707106543405331, -0.7071088792768023, 0, 0), (0, 0, -1.0000015411311853, 0), (0.0880000963807106, 9.965896197172697e-8, 0.8676002621650696, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_rightfinger/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/panda_rightfinger/visuals>
+        )
+        {
+        }
+
+        def "sites"
+        {
+            def Cube "panda_rightfinger_site" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.012, -0.015, -0.012), (0.012, 0.015, 0.012)]
+                rel material:binding = </panda_link0/panda_rightfinger/sites/Looks/material_rgba>
+                matrix4d xformOp:transform = ( (0.012000000104308128, 0, 0, 0), (0, 0.014999999664723873, 0, 0), (0, 0, 0.012000000104308128, 0), (0, -0.012000000104308128, 0.04500000178813934, 1) )
+                uniform token[] xformOpOrder = ["xformOp:transform"]
+            }
+
+            def Scope "Looks"
+            {
+                def Material "material_rgba"
+                {
+                    token outputs:mdl:displacement.connect = </panda_link0/panda_rightfinger/sites/Looks/material_rgba/Shader.outputs:out>
+                    token outputs:mdl:surface.connect = </panda_link0/panda_rightfinger/sites/Looks/material_rgba/Shader.outputs:out>
+                    token outputs:mdl:volume.connect = </panda_link0/panda_rightfinger/sites/Looks/material_rgba/Shader.outputs:out>
+
+                    def Shader "Shader"
+                    {
+                        uniform token info:id = "UsdPreviewSurface"
+                        uniform token info:implementationSource = "sourceAsset"
+                        uniform asset info:mdl:sourceAsset = @OmniPBR.mdl@
+                        uniform token info:mdl:sourceAsset:subIdentifier = "OmniPBR"
+                        color3f inputs:diffuse_color_constant = (0, 0, 1)
+                        token outputs:out
+                    }
+                }
+            }
+        }
+    }
+
+    def Xform "finger_joint2_tip" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysxRigidBodyAPI", "PhysicsMassAPI", "PhysicsFilteredPairsAPI"]
+    )
+    {
+        point3f physics:centerOfMass = (0, 0, 0)
+        float3 physics:diagonalInertia = (0.01, 0.01, 0.01)
+        float physics:mass = 0.01
+        matrix4d xformOp:transform = ( (0.707107338145617, 0.707106543405331, 0, 0), (0.707106543405331, -0.7071088792768023, 0, 0), (0, 0, -1.0000015411311853, 0), (0.08198969066143036, 0.006010512355715036, 0.8116002678871155, 1) )
+        uniform token[] xformOpOrder = ["xformOp:transform"]
+
+        def "collisions" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/finger_joint2_tip/collisions>
+        )
+        {
+        }
+
+        def "visuals" (
+            instanceable = true
+            prepend references = @./Props/instanceable_meshes.usd@</panda_link0/finger_joint2_tip/visuals>
+        )
+        {
+        }
+    }
+}
+
+def Xform "worldBody" (
+    prepend apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
+)
+{
+    bool physxArticulation:enabledSelfCollisions = 1
+}
+
