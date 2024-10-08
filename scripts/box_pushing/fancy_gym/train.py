@@ -19,6 +19,8 @@ from stable_baselines3.common.vec_env import (
 import wandb
 from wandb.integration.sb3 import WandbCallback
 
+from omni.isaac.lab.utils.io import dump_yaml
+
 # add argparse arguments
 parser = argparse.ArgumentParser(
     description="Train an RL agent with Stable-Baselines3."
@@ -73,7 +75,11 @@ args_cli, hydra_args = parser.parse_known_args()
 
 def main():
 
-    agent_cfg = yaml.safe_load(open("/home/johann/hiwi/alr_tasks/exts/als_isaaclab_tasks/tasks/box_pushing/config/franka/agents/sb3_ppo_cfg.yaml"))
+    agent_cfg = yaml.safe_load(
+        open(
+            "/home/johann/hiwi/alr_tasks/exts/alr_isaaclab_tasks/alr_isaaclab_tasks/tasks/boxPushing/config/franka/agents/sb3_ppo_cfg.yaml"
+        )
+    )
     agent_cfg = process_sb3_cfg(agent_cfg)
     policy_arch = agent_cfg.pop("policy")
     n_timesteps = agent_cfg.pop("n_timesteps")
@@ -89,18 +95,19 @@ def main():
     n_minibatches = agent_cfg.pop("n_minibatches")
     agent_cfg["batch_size"] = int(n_envs * n_steps / n_minibatches)
 
-    wandb.init(
-        project=args_cli.log_project_name,
-        group=args_cli.log_run_group,
-        config={
-            "policy_type": policy_arch,
-            "total_timesteps": n_timesteps,
-            "env_name": args_cli.task,
-        },
-        sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
-        monitor_gym=True,  # auto-upload the videos of agents playing the game
-        save_code=True,  # optional
-    )
+    if args_cli.logger == "wandb":
+        wandb.init(
+            project=args_cli.log_project_name,
+            group=args_cli.log_run_group,
+            config={
+                "policy_type": policy_arch,
+                "total_timesteps": n_timesteps,
+                "env_name": args_cli.task,
+            },
+            sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+            monitor_gym=True,  # auto-upload the videos of agents playing the game
+            save_code=True,  # optional
+        )
 
     # directory for logging into
     log_dir = os.path.join(
@@ -109,6 +116,9 @@ def main():
         args_cli.task,
         datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
     )
+
+    # dump the configuration into log-directory
+    dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
 
     # Parallel environments
     vec_env = make_vec_env(args_cli.task, vec_env_cls=SubprocVecEnv, n_envs=n_envs)

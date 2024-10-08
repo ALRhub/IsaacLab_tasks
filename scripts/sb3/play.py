@@ -45,6 +45,9 @@ import numpy as np
 import os
 import torch
 
+# Import extensions to set up environment tasks
+import alr_isaaclab_tasks.tasks  # noqa: F401
+
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import VecNormalize
 

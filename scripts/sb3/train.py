@@ -134,6 +134,7 @@ def main(
     log_dir = os.path.join(
         "logs", "sb3", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     )
+
     # dump the configuration into log-directory
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
@@ -162,19 +163,19 @@ def main(
     env_cfg.sim.device = (
         args_cli.device if args_cli.device is not None else env_cfg.sim.device
     )
-
-    wandb.init(
-        project=args_cli.log_project_name,
-        group=args_cli.log_run_group,
-        config={
-            "policy_type": policy_arch,
-            "total_timesteps": n_timesteps,
-            "env_name": args_cli.task,
-        },
-        sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
-        monitor_gym=True,  # auto-upload the videos of agents playing the game
-        save_code=True,  # optional
-    )
+    if args_cli.logger == "wandb":
+        wandb.init(
+            project=args_cli.log_project_name,
+            group=args_cli.log_run_group,
+            config={
+                "policy_type": policy_arch,
+                "total_timesteps": n_timesteps,
+                "env_name": args_cli.task,
+            },
+            sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+            monitor_gym=True,  # auto-upload the videos of agents playing the game
+            save_code=True,  # optional
+        )
 
     # create isaac environment
     env = gym.make(
