@@ -27,9 +27,9 @@
                 "--task",
                 "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
                 "--num_envs",
-                "4"
+                "1",
             ],
-            "program": "${workspaceFolder}/scripts/zero_agent_comparison.py",
+            "program": "${workspaceFolder}/scripts/box_pushing/zero_agent_comparison.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
             "justMyCode": false,
@@ -42,7 +42,7 @@
                 "--task",
                 "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
                 "--num_envs",
-                "4"
+                "1"
             ],
             "program": "${workspaceFolder}/scripts/random_agent.py",
             "console": "integratedTerminal",
@@ -57,9 +57,9 @@
                 "--task",
                 "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
                 "--num_envs",
-                "4"
+                "1",
             ],
-            "program": "${workspaceFolder}/scripts/random_agent_comparison.py",
+            "program": "${workspaceFolder}/scripts/box_pushing/random_agent_comparison.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
             "justMyCode": false,
@@ -94,6 +94,22 @@
                 "--headless"
             ],
             "program": "${workspaceFolder}/scripts/skrl/train.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Train sb3",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "480",
+                "--headless"
+            ],
+            "program": "${workspaceFolder}/scripts/sb3/train.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
             "justMyCode": false
