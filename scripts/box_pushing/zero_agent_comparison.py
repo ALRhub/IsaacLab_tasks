@@ -14,9 +14,14 @@ from omni.isaac.lab.app import AppLauncher
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Zero agent for Isaac Lab environments.")
 parser.add_argument(
-    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+    "--disable_fabric",
+    action="store_true",
+    default=False,
+    help="Disable fabric and use USD I/O operations.",
 )
-parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+parser.add_argument(
+    "--num_envs", type=int, default=None, help="Number of environments to simulate."
+)
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
@@ -33,8 +38,9 @@ import gymnasium as gym
 import torch
 
 import numpy as np
-import fancy_gym
-from scripts.utils import plot_joint_trajectories
+import fancy_gym  # noqa: F401
+
+# from scripts.utils import plot_joint_trajectories
 
 
 # Import extensions to set up environment tasks
@@ -46,18 +52,21 @@ from omni.isaac.lab_tasks.utils import parse_env_cfg
 def main():
     """Zero actions agent with Isaac Lab environment."""
     # parse configuration
-    env_cfg = parse_env_cfg(args_cli.task, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric)
+    env_cfg = parse_env_cfg(
+        args_cli.task,
+        num_envs=args_cli.num_envs,
+        use_fabric=not args_cli.disable_fabric,
+    )
     # create environment
     env = gym.make(args_cli.task, cfg=env_cfg)
-    env_fg = gym.make("fancy/BoxPushingDense-v0", render_mode="human")
-    env_fg.reset(seed=42)
+    env_fg = gym.make(
+        "fancy/BoxPushingDense-v0",
+        render_mode="rgb_array" if args_cli.headless else "human",
+    )
 
-    # print info (this is vectorized environment)
-    print(f"[INFO]: Gym observation space: {env.observation_space}")
-    print(f"[INFO]: Gym action space: {env.action_space}")
     # reset environment
+    env_fg.reset(seed=42)
     env.reset()
-    # simulate environment
 
     # joint position lists
     joint_positons = []
@@ -70,21 +79,22 @@ def main():
             actions = torch.zeros(env.action_space.shape, device=env.unwrapped.device)
             actions_fg = np.zeros_like(env_fg.action_space.sample())
 
-            # apply actions
+            # apply actions isaaclab
             obs, _, _, _, _ = env.step(actions)
             joint_positons.append(obs["policy"][0, :7].tolist())
 
+            # apply actions fancy_gym
             obs_fg, _, terminated, truncated, _ = env_fg.step(actions_fg)
             joint_positons_fg.append(obs_fg[:7].tolist())
-            env_fg.render()
+            if not args_cli.headless:
+                env_fg.render()
 
             if terminated or truncated:
-                plot_joint_trajectories(joint_positons, joint_positons_fg)
+                # plot_joint_trajectories(joint_positons, joint_positons_fg)
                 joint_positons = []
                 joint_positons_fg = []
 
                 env_fg.reset()
-
     # close the simulator
     env.close()
 
