@@ -25,7 +25,7 @@ from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import (
 ##
 from omni.isaac.lab.markers.config import FRAME_MARKER_CFG  # isort: skip
 from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import (
-    FRANKA_PANDA_FANCY_GYM as FRANKA_CONFIG,
+    FRANKA_PANDA_ONLY_TORQUE as FRANKA_CONFIG,
 )  # isort: skip
 
 
