@@ -93,22 +93,37 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 class CommandsCfg:
     """Command terms for the MDP."""
 
-    object_pose = UniformPoseWithMinDistCommandCfg(
-        asset_name="robot",
-        min_dist=0.3,
-        body_name=MISSING,  # will be set by agent env cfg
-        box_name="object",
-        resampling_time_range=(10.0, 10.0),
-        debug_vis=True,
-        ranges=UniformPoseWithMinDistCommandCfg.Ranges(
-            pos_x=(0.3, 0.6),
-            pos_y=(-0.45, 0.45),
-            pos_z=(0.007, 0.007),
-            roll=(0.0, 0.0),
-            pitch=(0.0, 0.0),
-            yaw=(0, 2 * torch.pi),
-        ),
-    )
+    def __init__(self, r2r) -> None:
+
+        ranges = (
+            UniformPoseWithMinDistCommandCfg.Ranges(
+                pos_x=(0.3, 0.6),
+                pos_y=(-0.45, 0.45),
+                pos_z=(0.007, 0.007),
+                roll=(0.0, 0.0),
+                pitch=(0.0, 0.0),
+                yaw=(0, 2 * torch.pi),
+            )
+            if r2r
+            else UniformPoseWithMinDistCommandCfg.Ranges(
+                pos_x=(0.4, 0.4),
+                pos_y=(-0.3, -0.3),
+                pos_z=(-0.01, -0.01),
+                roll=(0.0, 0.0),
+                pitch=(0.0, 0.0),
+                yaw=(torch.pi, torch.pi),
+            )
+        )
+
+        self.object_pose = UniformPoseWithMinDistCommandCfg(
+            asset_name="robot",
+            min_dist=0.3,
+            body_name=MISSING,  # will be set by agent env cfg
+            box_name="object",
+            resampling_time_range=(10.0, 10.0),
+            debug_vis=True,
+            ranges=ranges,
+        )
 
 
 @configclass
@@ -146,26 +161,29 @@ class ObservationsCfg:
 class EventCfg:
     """Configuration for randomization."""
 
-    reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
+    def __init__(self, r2r) -> None:
 
-    reset_box_pose = EventTerm(
-        func=mdp.sample_box_poses,
-        mode="reset",
-        params={
-            "pose_range": {
-                "x": (-0.15, 0.15),
-                "y": (-0.45, 0.45),
-                "z": (0.0, 0.0),
-                "yaw": (0.0, 2 * torch.pi),
-            },
-            "asset_cfg": SceneEntityCfg("object", body_names="Object"),
-        },
-    )
+        self.reset_all = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
 
-    reset_object_position = EventTerm(
-        func=mdp.reset_robot_cfg_with_IK,
-        mode="reset",
-    )
+        if r2r:
+            self.reset_box_pose = EventTerm(
+                func=mdp.sample_box_poses,
+                mode="reset",
+                params={
+                    "pose_range": {
+                        "x": (-0.15, 0.15),
+                        "y": (-0.45, 0.45),
+                        "z": (0.0, 0.0),
+                        "yaw": (0.0, 2 * torch.pi),
+                    },
+                    "asset_cfg": SceneEntityCfg("object", body_names="Object"),
+                },
+            )
+
+            self.reset_object_position = EventTerm(
+                func=mdp.reset_robot_cfg_with_IK,
+                mode="reset",
+            )
 
 
 @configclass
@@ -269,6 +287,11 @@ class TerminationsCfg:
 class BoxPushingEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the lifting environment."""
 
+    # Value setting the task to random to random.
+    r2r = True
+
+    ik_grid_precision = 100
+
     # Scene settings
     scene: ObjectTableSceneCfg = ObjectTableSceneCfg(
         num_envs=4096, env_spacing=2.5, replicate_physics=False
@@ -276,14 +299,12 @@ class BoxPushingEnvCfg(ManagerBasedRLEnvCfg):
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
-    commands: CommandsCfg = CommandsCfg()
+    commands: CommandsCfg = CommandsCfg(r2r)
     # MDP settings
     # rewards: will be populated by agent env cfg
     rewards = MISSING
     terminations: TerminationsCfg = TerminationsCfg()
-    events: EventCfg = EventCfg()
-
-    ik_grid_precision = 100
+    events: EventCfg = EventCfg(r2r)
 
     def __post_init__(self):
         """Post initialization."""

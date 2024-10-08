@@ -158,12 +158,12 @@ def joint_vel_limits_bp(
         [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100], device=env.device
     )
     # compute out of limits constraints
-    out_of_limits = (
-        torch.abs(asset.data.joint_vel[:, :7]) - arm_dof_vel_max * soft_ratio
-    )
-    # clip to max error = 1 rad/s per joint to avoid huge penalties
-    out_of_limits = out_of_limits.clip_(min=0.0, max=1.0)
-    return torch.sum(out_of_limits, dim=1)
+    out_of_limits = torch.abs(asset.data.joint_vel[:, :7]) - arm_dof_vel_max
+
+    mask = out_of_limits > 0
+    out_of_limits = torch.where(mask, out_of_limits, 0)
+
+    return soft_ratio * torch.sum(out_of_limits, dim=1)
 
 
 def rod_inclined_angle(

@@ -26,6 +26,7 @@ from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import (
 from omni.isaac.lab.markers.config import FRAME_MARKER_CFG  # isort: skip
 from alr_isaaclab_tasks.tasks.boxPushing.assets.franka import (
     FRANKA_PANDA_ONLY_TORQUE as FRANKA_CONFIG,
+    FRANKA_PANDA_COMPARISON,
 )  # isort: skip
 
 
@@ -36,7 +37,9 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
         super().__post_init__()
 
         # Set Franka as robot
-        self.scene.robot = FRANKA_CONFIG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = (
+            FRANKA_CONFIG if self.r2r else FRANKA_PANDA_COMPARISON
+        ).replace(prim_path="{ENV_REGEX_NS}/Robot")
 
         # Set actions for the specific robot type (franka)
         self.actions.body_joint_effort = mdp.JointEffortActionCfg(
@@ -51,8 +54,8 @@ class FrankaBoxPushingEnvCfg(BoxPushingEnvCfg):
         self.scene.object = RigidObjectCfg(
             prim_path="{ENV_REGEX_NS}/Object",
             init_state=RigidObjectCfg.InitialStateCfg(
-                pos=(0.45, 0.0, 0.01),
-                rot=(1, 0, 0, 0),
+                pos=(0.45, 0.0, 0.01) if self.r2r else (0.4, 0.3, -0.01),
+                rot=(1, 0, 0, 0) if self.r2r else (0, 0, 0, 1),
             ),
             spawn=UsdFileCfg(
                 usd_path=os.path.join(

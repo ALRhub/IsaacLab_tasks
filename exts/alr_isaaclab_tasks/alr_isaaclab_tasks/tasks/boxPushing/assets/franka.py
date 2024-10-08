@@ -101,3 +101,5 @@ FRANKA_PANDA_FANCY_GYM = FRANKA_PANDA_ONLY_TORQUE.copy()
 FRANKA_PANDA_FANCY_GYM.spawn.usd_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "fg", "panda_rod.usda"
 )
+
+FRANKA_PANDA_COMPARISON = FRANKA_PANDA_FANCY_GYM.copy()
