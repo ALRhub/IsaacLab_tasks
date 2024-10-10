@@ -168,7 +168,6 @@ def main():
         )
 
     model.learn(total_timesteps=n_timesteps, callback=checkpoint_callback)
-    model.save("box_pushing")
 
 
 if __name__ == "__main__":

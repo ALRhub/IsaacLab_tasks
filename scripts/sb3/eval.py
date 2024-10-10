@@ -12,20 +12,43 @@ import argparse
 from omni.isaac.lab.app import AppLauncher
 
 # add argparse arguments
-parser = argparse.ArgumentParser(description="Play a checkpoint of an RL agent from Stable-Baselines3.")
-parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
-parser.add_argument(
-    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+parser = argparse.ArgumentParser(
+    description="Play a checkpoint of an RL agent from Stable-Baselines3."
 )
-parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+parser.add_argument(
+    "--video", action="store_true", default=False, help="Record videos during training."
+)
+parser.add_argument(
+    "--video_length",
+    type=int,
+    default=200,
+    help="Length of the recorded video (in steps).",
+)
+parser.add_argument(
+    "--disable_fabric",
+    action="store_true",
+    default=False,
+    help="Disable fabric and use USD I/O operations.",
+)
+parser.add_argument(
+    "--num_envs", type=int, default=None, help="Number of environments to simulate."
+)
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
-parser.add_argument("--checkpoint", type=str, default=None, help="Path to model checkpoint.")
+parser.add_argument(
+    "--checkpoint", type=str, default=None, help="Path to model checkpoint."
+)
 parser.add_argument(
     "--use_last_checkpoint",
     action="store_true",
     help="When no checkpoint provided, use the last saved model. Otherwise use the best saved model.",
 )
+parser.add_argument(
+    "--num_eval_epochs",
+    type=int,
+    default=None,
+    help="Number of epochs to run the evaluation for.",
+)
+
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -41,9 +64,10 @@ simulation_app = app_launcher.app
 """Rest everything follows."""
 
 import gymnasium as gym
-import numpy as np
 import os
 import torch
+import tqdm
+import sys
 
 # Import extensions to set up environment tasks
 import alr_isaaclab_tasks.tasks  # noqa: F401
@@ -54,7 +78,11 @@ from stable_baselines3.common.vec_env import VecNormalize
 from omni.isaac.lab.utils.dict import print_dict
 
 import omni.isaac.lab_tasks  # noqa: F401
-from omni.isaac.lab_tasks.utils.parse_cfg import get_checkpoint_path, load_cfg_from_registry, parse_env_cfg
+from omni.isaac.lab_tasks.utils.parse_cfg import (
+    get_checkpoint_path,
+    load_cfg_from_registry,
+    parse_env_cfg,
+)
 from omni.isaac.lab_tasks.utils.wrappers.sb3 import Sb3VecEnvWrapper, process_sb3_cfg
 
 
@@ -62,7 +90,10 @@ def main():
     """Play with stable-baselines agent."""
     # parse configuration
     env_cfg = parse_env_cfg(
-        args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
+        args_cli.task,
+        device=args_cli.device,
+        num_envs=args_cli.num_envs,
+        use_fabric=not args_cli.disable_fabric,
     )
     agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
 
@@ -84,7 +115,9 @@ def main():
     agent_cfg = process_sb3_cfg(agent_cfg)
 
     # create isaac environment
-    env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
+    env = gym.make(
+        args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None
+    )
     # wrap for video recording
     if args_cli.video:
         video_kwargs = {
@@ -120,14 +153,26 @@ def main():
     # reset environment
     obs = env.reset()
     timestep = 0
+
+    total_episodes = 0
+    total_success_episodes = 0
     # simulate environment
-    while simulation_app.is_running():
+    for _ in tqdm.tqdm(
+        range(args_cli.num_eval_epochs * env.unwrapped.max_episode_length),
+        file=sys.stdout,
+    ):
+        if not simulation_app.is_running():
+            break
         # run everything in inference mode
         with torch.inference_mode():
             # agent stepping
             actions, _ = agent.predict(obs, deterministic=True)
             # env stepping
-            obs, _, _, _ = env.step(actions)
+            obs, _, dones, extras = env.step(actions)
+            if (dones == 1).any():
+                # total_episodes += args_cli.num_envs
+                total_episodes += 1
+                total_success_episodes += extras[0]["is_success"]
         if args_cli.video:
             timestep += 1
             # Exit the play loop after recording one video
@@ -135,6 +180,8 @@ def main():
                 break
 
     # close the simulator
+    print(total_episodes)
+    print("Success rate: ", total_success_episodes / total_episodes)
     env.close()
 
 
