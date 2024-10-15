@@ -40,7 +40,7 @@ def joint_pos_abs(
     """The joint positions of the asset w.r.t. the default joint positions."""
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_pos
+    return asset.data.joint_pos[:, :7]
 
 
 def joint_vel_abs(
@@ -49,4 +49,4 @@ def joint_vel_abs(
     """The joint positions of the asset w.r.t. the default joint positions."""
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
-    return asset.data.joint_vel
+    return asset.data.joint_vel[:, :7]

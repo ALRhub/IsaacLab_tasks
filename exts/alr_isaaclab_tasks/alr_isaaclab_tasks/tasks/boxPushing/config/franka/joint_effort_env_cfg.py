@@ -19,7 +19,6 @@ from alr_isaaclab_tasks.tasks.boxPushing.box_pushing_env_cfg import (
     TemporalSparseRewardCfg,
 )
 
-
 ##
 # Pre-defined configs
 ##
