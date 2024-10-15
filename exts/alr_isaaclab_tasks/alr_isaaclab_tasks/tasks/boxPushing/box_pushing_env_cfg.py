@@ -142,8 +142,8 @@ class ObservationsCfg:
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
 
-        joint_pos = ObsTerm(func=mdp.joint_pos_rel)
-        joint_vel = ObsTerm(func=mdp.joint_vel_rel)
+        joint_pos = ObsTerm(func=mdp.joint_pos_abs)
+        joint_vel = ObsTerm(func=mdp.joint_vel_abs)
         object_pose = ObsTerm(func=mdp.object_pose_in_robot_root_frame)
         target_object_pose = ObsTerm(
             func=mdp.generated_commands, params={"command_name": "object_pose"}

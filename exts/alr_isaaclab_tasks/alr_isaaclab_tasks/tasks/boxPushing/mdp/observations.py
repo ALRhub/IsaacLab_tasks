@@ -26,13 +26,27 @@ def object_pose_in_robot_root_frame(
     object: RigidObject = env.scene[object_cfg.name]
     object_pose_w = object.data.root_state_w[:, :7]
     object_pos_b, object_or_b = subtract_frame_transforms(
-        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pose_w[:, :3], object_pose_w[:, 3:]
+        robot.data.root_state_w[:, :3],
+        robot.data.root_state_w[:, 3:7],
+        object_pose_w[:, :3],
+        object_pose_w[:, 3:],
     )
     return torch.cat((object_pos_b, object_or_b), dim=1)
 
 
-def joint_pos_abs(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+def joint_pos_abs(
+    env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
     """The joint positions of the asset w.r.t. the default joint positions."""
     # extract the used quantities (to enable type-hinting)
     asset: Articulation = env.scene[asset_cfg.name]
     return asset.data.joint_pos
+
+
+def joint_vel_abs(
+    env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    """The joint positions of the asset w.r.t. the default joint positions."""
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_cfg.name]
+    return asset.data.joint_vel
