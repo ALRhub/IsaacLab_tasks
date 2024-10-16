@@ -6,7 +6,9 @@
 
 import gymnasium as gym
 
-from . import agents, joint_effort_env_cfg
+from . import agents, joint_effort_env_cfg, mp_wrapper
+
+import fancy_gym.envs.registry as fancy_gym_registry
 
 ##
 # Register Gym environments.
@@ -34,3 +36,8 @@ for reward_type in ["Dense", "TemporalSparse"]:
             },
             disable_env_checker=True,
         )
+
+    fancy_gym_registry.upgrade(
+        id=f"Isaac-Box-Pushing-{reward_type}-{rsl_rl_cfg_name}-Franka-v0",
+        mp_wrapper=mp_wrapper.FrankaBoxPushingMPWrapper,
+    )

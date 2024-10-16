@@ -6,6 +6,16 @@
     "configurations": [
         // For standalone script execution
         {
+            "name": "Python: List Envs",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [],
+            "program": "${workspaceFolder}/scripts/list_envs.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false,
+        },
+        {
             "name": "Python: Zero Agent",
             "type": "debugpy",
             "request": "launch",
@@ -18,6 +28,24 @@
             "program": "${workspaceFolder}/scripts/zero_agent.py",
             "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false,
+        },
+        {
+            "name": "Python: Zero Agent BBRL",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "4",
+                "--motion_primitive",
+                "ProDMP",
+            ],
+            "program": "${workspaceFolder}/scripts/zero_agent.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false,
         },
         {
             "name": "Python: Zero Agent Comparison",
@@ -43,6 +71,23 @@
                 "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
                 "--num_envs",
                 "1"
+            ],
+            "program": "${workspaceFolder}/scripts/random_agent.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false,
+        },
+        {
+            "name": "Python: Random Agent BBRL",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "--num_envs",
+                "4",
+                "--motion_primitive",
+                "ProDMP",
             ],
             "program": "${workspaceFolder}/scripts/random_agent.py",
             "console": "integratedTerminal",

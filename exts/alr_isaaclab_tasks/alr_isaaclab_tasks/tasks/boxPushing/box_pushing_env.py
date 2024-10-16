@@ -35,11 +35,15 @@ class BoxPushingEnv(ManagerBasedRLEnv):
         # initialize the base class to setup the scene.
         super().__init__(cfg, render_mode, **kwargs)
 
+        self.dt = self.step_dt # TODO find better solution
+
         action_dim = sum(self.action_manager.action_term_dim)
         self.single_action_space = gym.spaces.Box(low=-1, high=1, shape=(action_dim,))
 
         # batch the spaces for vectorized environments
-        self.action_space = gym.vector.utils.batch_space(self.single_action_space, self.num_envs)
+        self.action_space = gym.vector.utils.batch_space(
+            self.single_action_space, self.num_envs
+        )
 
         print("Precomputing IK Solutions for the box sampling space")
 
@@ -114,15 +118,23 @@ class BoxPushingEnv(ManagerBasedRLEnv):
         # TODO resolve value fetch
         precision = self.cfg.ik_grid_precision
         index = torch.floor((value - min_val) / (max_val - min_val) * precision).long()
-        index = torch.clamp(index, 0, precision - 1)  # Ensure the index is within bounds
+        index = torch.clamp(
+            index, 0, precision - 1
+        )  # Ensure the index is within bounds
         return index
 
     def get_ik_solutions(self, sample_poses):
         """
         Find the indices in the grid for each sample pose.
         """
-        x_indices = self.compute_index(sample_poses[:, 0], self.x_sample_range[0], self.x_sample_range[1])
-        y_indices = self.compute_index(sample_poses[:, 1], self.y_sample_range[0], self.y_sample_range[1])
-        z_indices = self.compute_index(sample_poses[:, 2], self.z_sample_range[0], self.z_sample_range[1])
+        x_indices = self.compute_index(
+            sample_poses[:, 0], self.x_sample_range[0], self.x_sample_range[1]
+        )
+        y_indices = self.compute_index(
+            sample_poses[:, 1], self.y_sample_range[0], self.y_sample_range[1]
+        )
+        z_indices = self.compute_index(
+            sample_poses[:, 2], self.z_sample_range[0], self.z_sample_range[1]
+        )
 
         return self.ik_grid_solutions[x_indices, y_indices, z_indices]
