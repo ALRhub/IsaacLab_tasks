@@ -12,19 +12,44 @@ import argparse
 from omni.isaac.lab.app import AppLauncher
 
 # add argparse arguments
-parser = argparse.ArgumentParser(description="Play a checkpoint of an RL agent from Stable-Baselines3.")
-parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
-parser.add_argument(
-    "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
+parser = argparse.ArgumentParser(
+    description="Play a checkpoint of an RL agent from Stable-Baselines3."
 )
-parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+parser.add_argument(
+    "--video", action="store_true", default=False, help="Record videos during training."
+)
+parser.add_argument(
+    "--video_length",
+    type=int,
+    default=200,
+    help="Length of the recorded video (in steps).",
+)
+parser.add_argument(
+    "--disable_fabric",
+    action="store_true",
+    default=False,
+    help="Disable fabric and use USD I/O operations.",
+)
+parser.add_argument(
+    "--num_envs", type=int, default=None, help="Number of environments to simulate."
+)
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
-parser.add_argument("--checkpoint", type=str, default=None, help="Path to model checkpoint.")
+parser.add_argument(
+    "--checkpoint", type=str, default=None, help="Path to model checkpoint."
+)
 parser.add_argument(
     "--use_last_checkpoint",
     action="store_true",
     help="When no checkpoint provided, use the last saved model. Otherwise use the best saved model.",
+)
+parser.add_argument(
+    "--motion_primitive",
+    type=str,
+    default=None,
+    help=(
+        "Whether to use a motion primitive for the training. The supported ones depend in the environment: ProMP"
+        " etc..."
+    ),
 )
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
@@ -54,23 +79,29 @@ from stable_baselines3.common.vec_env import VecNormalize
 from omni.isaac.lab.utils.dict import print_dict
 
 import omni.isaac.lab_tasks  # noqa: F401
-from omni.isaac.lab_tasks.utils.parse_cfg import get_checkpoint_path, load_cfg_from_registry, parse_env_cfg
+from omni.isaac.lab_tasks.utils.parse_cfg import (
+    get_checkpoint_path,
+    load_cfg_from_registry,
+    parse_env_cfg,
+)
 from omni.isaac.lab_tasks.utils.wrappers.sb3 import Sb3VecEnvWrapper, process_sb3_cfg
 
 
 def main():
     """Play with stable-baselines agent."""
-    
-    task_name = args_cli.task
-    if args_cli.motion_primitive is not None:
-        task_name = "gym_" + args_cli.motion_primitive + "/" + task_name + "-bbrl"
-    else:
-        task_name += "-step"
+
     # parse configuration
     env_cfg = parse_env_cfg(
-        task_name, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
+        args_cli.task,
+        device=args_cli.device,
+        num_envs=args_cli.num_envs,
+        use_fabric=not args_cli.disable_fabric,
     )
-    agent_cfg = load_cfg_from_registry(task_name, "sb3_cfg_entry_point")
+    agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
+
+    task_name = args_cli.task
+    if args_cli.motion_primitive is not None:
+        task_name = "gym_" + args_cli.motion_primitive + "/" + task_name
 
     # directory for logging into
     log_root_path = os.path.join("logs", "sb3", task_name)
@@ -90,7 +121,9 @@ def main():
     agent_cfg = process_sb3_cfg(agent_cfg)
 
     # create isaac environment
-    env = gym.make(task_name, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
+    env = gym.make(
+        task_name, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None
+    )
     # wrap for video recording
     if args_cli.video:
         video_kwargs = {
@@ -103,7 +136,7 @@ def main():
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
     # wrap around environment for stable baselines
-    env = Sb3VecEnvWrapper(env)
+    env = Sb3VecEnvWrapper(env, args_cli.motion_primitive)
 
     # normalize environment (if needed)
     if "normalize_input" in agent_cfg:
