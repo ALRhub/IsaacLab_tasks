@@ -60,14 +60,20 @@ from omni.isaac.lab_tasks.utils.wrappers.sb3 import Sb3VecEnvWrapper, process_sb
 
 def main():
     """Play with stable-baselines agent."""
+    
+    task_name = args_cli.task
+    if args_cli.motion_primitive is not None:
+        task_name = "gym_" + args_cli.motion_primitive + "/" + task_name + "-bbrl"
+    else:
+        task_name += "-step"
     # parse configuration
     env_cfg = parse_env_cfg(
-        args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
+        task_name, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
     )
-    agent_cfg = load_cfg_from_registry(args_cli.task, "sb3_cfg_entry_point")
+    agent_cfg = load_cfg_from_registry(task_name, "sb3_cfg_entry_point")
 
     # directory for logging into
-    log_root_path = os.path.join("logs", "sb3", args_cli.task)
+    log_root_path = os.path.join("logs", "sb3", task_name)
     log_root_path = os.path.abspath(log_root_path)
     # check checkpoint is valid
     if args_cli.checkpoint is None:
@@ -84,7 +90,7 @@ def main():
     agent_cfg = process_sb3_cfg(agent_cfg)
 
     # create isaac environment
-    env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
+    env = gym.make(task_name, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
     # wrap for video recording
     if args_cli.video:
         video_kwargs = {

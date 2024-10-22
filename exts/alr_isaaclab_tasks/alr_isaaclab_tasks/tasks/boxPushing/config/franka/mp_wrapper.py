@@ -15,14 +15,6 @@ class FrankaBoxPushingMPWrapper(MPWrapper):
                 "reward_aggregation": torch.sum,
             },
             "controller_kwargs": {
-                "p_gains": 0.01
-                * torch.tensor(
-                    [120.0, 120.0, 120.0, 120.0, 50.0, 30.0, 10.0], device="cuda:0"
-                ),
-                "d_gains": 0.01
-                * torch.tensor(
-                    [10.0, 10.0, 10.0, 10.0, 6.0, 5.0, 3.0], device="cuda:0"
-                ),
             },
             "trajectory_generator_kwargs": {
                 "weights_scale": 0.3,
@@ -31,12 +23,10 @@ class FrankaBoxPushingMPWrapper(MPWrapper):
                 "device": "cuda:0",
             },
             "basis_generator_kwargs": {
-                "num_basis": 5,
-                "basis_bandwidth_factor": 3,
+                "num_basis": 8,
                 "device": "cuda:0",
             },
             "phase_generator_kwargs": {
-                "alpha_phase": 3,
                 "device": "cuda:0",
             },
         }

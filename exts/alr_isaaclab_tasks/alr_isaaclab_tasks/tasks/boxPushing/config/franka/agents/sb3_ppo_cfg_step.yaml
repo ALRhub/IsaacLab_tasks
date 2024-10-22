@@ -16,7 +16,6 @@ ent_coef: 0
 
 policy_kwargs: "dict(
                   ortho_init=True,
-                  log_std_init=0,
                   activation_fn=nn.Tanh,
                   net_arch=[512, 512],
                 )"

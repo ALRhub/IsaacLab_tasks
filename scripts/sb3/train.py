@@ -65,6 +65,16 @@ parser.add_argument(
     default=None,
     help="Name of the logging group when using wandb.",
 )
+parser.add_argument(
+    "--motion_primitive",
+    type=str,
+    default=None,
+    help=(
+        "Whether to use a motion primitive for the training. The supported ones depend in the environment: ProMP"
+        " etc..."
+    ),
+)
+
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -130,10 +140,16 @@ def main(
             args_cli.max_iterations * agent_cfg["n_steps"] * env_cfg.scene.num_envs
         )
 
+    task_name = args_cli.task
+    if args_cli.motion_primitive is not None:
+        task_name = "gym_" + args_cli.motion_primitive + "/" + task_name
+
     # directory for logging into
     log_dir = os.path.join(
-        "logs", "sb3", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        "logs", "sb3", task_name, datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     )
+
+    # processing task name for MP
 
     # dump the configuration into log-directory
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
@@ -163,23 +179,10 @@ def main(
     env_cfg.sim.device = (
         args_cli.device if args_cli.device is not None else env_cfg.sim.device
     )
-    if args_cli.logger == "wandb":
-        wandb.init(
-            project=args_cli.log_project_name,
-            group=args_cli.log_run_group,
-            config={
-                "policy_type": policy_arch,
-                "total_timesteps": n_timesteps,
-                "env_name": args_cli.task,
-            },
-            sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
-            monitor_gym=True,  # auto-upload the videos of agents playing the game
-            save_code=True,  # optional
-        )
 
     # create isaac environment
     env = gym.make(
-        args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None
+        task_name, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None
     )
     # wrap for video recording
     if args_cli.video:
@@ -198,7 +201,7 @@ def main(
         env = multi_agent_to_single_agent(env)
 
     # wrap around environment for stable baselines
-    env = Sb3VecEnvWrapper(env)
+    env = Sb3VecEnvWrapper(env, args_cli.motion_primitive)
 
     if "normalize_input" in agent_cfg:
         env = VecNormalize(
@@ -211,6 +214,20 @@ def main(
             clip_obs="clip_obs" in agent_cfg and agent_cfg.pop("clip_obs"),
             gamma=agent_cfg["gamma"],
             clip_reward="clip_rew" in agent_cfg and agent_cfg.pop("clip_rew"),
+        )
+
+    if args_cli.logger == "wandb":
+        wandb.init(
+            project=args_cli.log_project_name,
+            group=args_cli.log_run_group,
+            config={
+                "policy_type": policy_arch,
+                "total_timesteps": n_timesteps,
+                "env_name": task_name,
+            },
+            sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
+            monitor_gym=True,  # auto-upload the videos of agents playing the game
+            save_code=True,  # optional
         )
 
     # create agent from stable baselines

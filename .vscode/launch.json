@@ -21,7 +21,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "4"
             ],
@@ -36,7 +36,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-bbrl-Franka-v0",
                 "--num_envs",
                 "4",
                 "--motion_primitive",
@@ -53,7 +53,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "1",
             ],
@@ -68,7 +68,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "1"
             ],
@@ -83,7 +83,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-bbrl-Franka-v0",
                 "--num_envs",
                 "4",
                 "--motion_primitive",
@@ -100,7 +100,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "1",
             ],
@@ -115,7 +115,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "480",
                 "--headless"
@@ -131,7 +131,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--max_iterations",
                 "10",
                 "--num_envs",
@@ -149,10 +149,28 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "480",
                 "--headless"
+            ],
+            "program": "${workspaceFolder}/scripts/sb3/train.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Train sb3 BBRL",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "--task",
+                "Isaac-Box-Pushing-Dense-bbrl-Franka-v0",
+                "--num_envs",
+                "152",
+                "--headless",
+                "--motion_primitive",
+                "ProDMP"
             ],
             "program": "${workspaceFolder}/scripts/sb3/train.py",
             "console": "integratedTerminal",
@@ -165,7 +183,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "1",
             ],
@@ -180,7 +198,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "480",
                 "--num_eval_epochs",
@@ -198,7 +216,7 @@
             "request": "launch",
             "args": [
                 "--task",
-                "Isaac-Box-Pushing-Dense-Step_RL_Fancy_Gym_HP-Franka-v0",
+                "Isaac-Box-Pushing-Dense-step-Franka-v0",
                 "--num_envs",
                 "480",
                 "--num_eval_epochs",
