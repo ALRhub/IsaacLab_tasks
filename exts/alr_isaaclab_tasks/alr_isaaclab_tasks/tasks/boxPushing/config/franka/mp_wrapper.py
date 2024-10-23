@@ -15,18 +15,30 @@ class FrankaBoxPushingMPWrapper(MPWrapper):
                 "reward_aggregation": torch.sum,
             },
             "controller_kwargs": {
+                "p_gains": 0.01
+                * np.array([120.0, 120.0, 120.0, 120.0, 50.0, 30.0, 10.0]),
+                "d_gains": 0.01 * np.array([10.0, 10.0, 10.0, 10.0, 6.0, 5.0, 3.0]),
             },
             "trajectory_generator_kwargs": {
+                "num_dof": 7,
                 "weights_scale": 0.3,
                 "goal_scale": 0.3,
                 "auto_scale_basis": True,
+                "relative_goal": False,
+                "disable_goal": False,
                 "device": "cuda:0",
             },
             "basis_generator_kwargs": {
                 "num_basis": 8,
+                "basis_bandwidth_factor": 3,
+                "num_basis_outside": 0,
+                "alpha": 10,
                 "device": "cuda:0",
             },
             "phase_generator_kwargs": {
+                "phase_generator_type": "exp",
+                "tau": 2.0,
+                "alpha_phase": 3.0,
                 "device": "cuda:0",
             },
         }
@@ -38,7 +50,7 @@ class FrankaBoxPushingMPWrapper(MPWrapper):
         return np.hstack(
             [
                 [True] * 7,  # joints position relative
-                [True] * 7,  # joints velocity
+                [False] * 7,  # joints velocity
                 [True] * 7,  # pose of box
                 [True] * 7,  # pose of target
             ]
