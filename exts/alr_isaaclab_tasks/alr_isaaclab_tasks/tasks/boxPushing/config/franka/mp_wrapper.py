@@ -16,11 +16,16 @@ class FrankaBoxPushingMPWrapper(MPWrapper):
             },
             "controller_kwargs": {
                 "p_gains": 0.01
-                * np.array([120.0, 120.0, 120.0, 120.0, 50.0, 30.0, 10.0]),
-                "d_gains": 0.01 * np.array([10.0, 10.0, 10.0, 10.0, 6.0, 5.0, 3.0]),
+                * torch.tensor(
+                    [120.0, 120.0, 120.0, 120.0, 50.0, 30.0, 10.0], device="cuda:0"
+                ),
+                "d_gains": 0.01
+                * torch.tensor(
+                    [10.0, 10.0, 10.0, 10.0, 6.0, 5.0, 3.0], device="cuda:0"
+                ),
             },
             "trajectory_generator_kwargs": {
-                "num_dof": 7,
+                # "num_dof": 7,
                 "weights_scale": 0.3,
                 "goal_scale": 0.3,
                 "auto_scale_basis": True,
