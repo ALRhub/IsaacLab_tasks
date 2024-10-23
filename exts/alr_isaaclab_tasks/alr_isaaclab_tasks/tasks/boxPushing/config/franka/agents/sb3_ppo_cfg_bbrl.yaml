@@ -6,9 +6,9 @@ n_steps_per_update: 152
 n_minibatches: 40
 
 policy: 'MlpPolicy'
-learning_rate: !!float 5e-5
-n_epochs: 10
-gamma: 0.99
+learning_rate: !!float 3e-4
+n_epochs: 20
+gamma: 1.0
 gae_lambda: 0.95
 clip_range: 0.2
 normalize_advantage: True
@@ -16,13 +16,6 @@ ent_coef: 0
 
 policy_kwargs: "dict(
                   ortho_init=True,
-                  activation_fn=nn.Tanh,
-                  net_arch=[512, 512],
+                  activation_fn=nn.LeakyReLU,
+                  net_arch=dict(pi=[128, 128], vf=[256, 256])
                 )"
-
-# Uses VecNormalize class to normalize obs
-normalize_input: True
-clip_obs: 10.0
-# Uses VecNormalize class to normalize rew
-normalize_value: True
-clip_rew: 10.0
