@@ -78,13 +78,13 @@ parser.add_argument(
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
-args_cli, hydra_args = parser.parse_known_args()
+args_cli, _ = parser.parse_known_args()
 # always enable cameras to record video
 if args_cli.video:
     args_cli.enable_cameras = True
 
 # clear out sys.argv for Hydra
-sys.argv = [sys.argv[0]] + hydra_args
+sys.argv = [sys.argv[0]]
 
 # launch omniverse app
 app_launcher = AppLauncher(args_cli)

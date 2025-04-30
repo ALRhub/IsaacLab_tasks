@@ -178,6 +178,19 @@
             "justMyCode": false
         },
         {
+            "name": "Python: Train sb3 TCE_RL",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "../TCE_RL/mprl/config/box_push_random_init/bbrl/isaaclab/local.yaml",
+                "-o"
+            ],
+            "program": "${workspaceFolder}/../TCE_RL/mprl/mp_exp.py",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.vscode/.python.env",
+            "justMyCode": false
+        },
+        {
             "name": "Python: Play sb3",
             "type": "debugpy",
             "request": "launch",

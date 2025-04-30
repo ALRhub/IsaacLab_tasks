@@ -4,8 +4,10 @@
 eval "$(conda shell.zsh hook)"
 
 # Define environment name and Python version
-ENV_NAME=isaaclab
+ENV_NAME=isaaclab_test
 PYTHON_VERSION=3.10
+
+cd ..
 
 # Create a new conda environment
 echo "Creating a new conda environment named $ENV_NAME with Python $PYTHON_VERSION"
@@ -74,7 +76,6 @@ pip install -e .
 cd ..
 
 # alr_tasks
-git clone -b box_pushing git@github.com:ALRhub/IsaacLab_tasks.git alr_tasks
 cd alr_tasks/exts/alr_isaaclab_tasks
 conda develop .
 pip install -e .
